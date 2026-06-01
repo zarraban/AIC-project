@@ -24,6 +24,7 @@ services:
       - POSTGRES_DB=zlagoda_db
     volumes:
       - postgres_data:/var/lib/postgresql/data
+      - ./init_sql:/docker-entrypoint-initdb.d
     healthcheck:
       test: ["CMD-SHELL", "pg_isready -U postgres -d zlagoda_db"]
       interval: 5s
