@@ -1,25 +1,35 @@
-import React from 'react';
+import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
 
 export default function Login() {
+    const [id, setId] = useState('');
+    const [password, setPassword] = useState('');
+
     const navigate = useNavigate();
     const { login } = useAuth();
 
-    const handleMockLogin = (selectedRole) => {
-        const mockData = {
-            token: 'fake-jwt-token-12345',
-            role: selectedRole,
-            name: selectedRole === 'manager' ? 'Іван Менеджер' : 'Олена Касир',
-            id: selectedRole === 'manager' ? 'M-01' : 'C-01'
-        };
+    const handleLogin = (e) => {
+        e.preventDefault();
 
-        login(mockData);
-
-        if (selectedRole === 'manager') {
+        if (id === 'M-01' && password === '123') {
+            login({
+                token: 'fake-jwt-manager',
+                role: 'manager',
+                name: 'Іван',
+                id: 'M-01'
+            });
             navigate('/manager/employees');
-        } else {
+        } else if (id === 'C-01' && password === '123') {
+            login({
+                token: 'fake-jwt-cashier',
+                role: 'cashier',
+                name: 'Олена',
+                id: 'C-01'
+            });
             navigate('/cashier/new-receipt');
+        } else {
+            alert('Неправильний логін або пароль!');
         }
     };
 
@@ -29,23 +39,38 @@ export default function Login() {
                 <h1 className="text-2xl font-bold text-center text-green-700 mb-6">
                     Міні-супермаркет ZLAGODA
                 </h1>
-                <p className="text-gray-600 text-center mb-6">Вхід у систему (test)</p>
+                <p className="text-gray-600 text-center mb-6">Вхід у систему</p>
 
-                <div className="space-y-4">
-                    <button
-                        onClick={() => handleMockLogin('manager')}
-                        className="w-full bg-green-600 text-white font-semibold py-2 px-4 rounded hover:bg-green-700 transition"
-                    >
-                        Увійти як Менеджер
-                    </button>
+                <form onSubmit={handleLogin} className="space-y-4">
+                    <div>
+                        <label className="block text-gray-700 mb-1 text-sm font-medium">ID Працівника</label>
+                        <input
+                            type="text"
+                            value={id}
+                            onChange={(e) => setId(e.target.value)}
+                            className="w-full border border-gray-300 px-3 py-2 rounded focus:outline-none focus:ring-2 focus:ring-green-600"
+                            required
+                        />
+                    </div>
+
+                    <div>
+                        <label className="block text-gray-700 mb-1 text-sm font-medium">Пароль</label>
+                        <input
+                            type="password"
+                            value={password}
+                            onChange={(e) => setPassword(e.target.value)}
+                            className="w-full border border-gray-300 px-3 py-2 rounded focus:outline-none focus:ring-2 focus:ring-green-600"
+                            required
+                        />
+                    </div>
 
                     <button
-                        onClick={() => handleMockLogin('cashier')}
-                        className="w-full bg-blue-600 text-white font-semibold py-2 px-4 rounded hover:bg-blue-700 transition"
+                        type="submit"
+                        className="w-full bg-green-600 text-white font-semibold py-2 px-4 rounded hover:bg-green-700 transition mt-2"
                     >
-                        Увійти як Касир
+                        Увійти
                     </button>
-                </div>
+                </form>
             </div>
         </div>
     );
