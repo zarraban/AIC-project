@@ -78,3 +78,12 @@ CREATE TABLE "Sale" (
     FOREIGN KEY (upc) REFERENCES "Store_Product"(upc) ON UPDATE CASCADE ON DELETE NO ACTION,
     FOREIGN KEY (receipt_number) REFERENCES "Receipt"(receipt_number) ON UPDATE CASCADE ON DELETE CASCADE
 );
+
+INSERT INTO "Employee" (id_employee, empl_surname, empl_name, empl_patronymic, empl_role,
+    salary, date_of_birth, date_of_start, phone_number, city, street, zip_code)
+VALUES ('MGR-001', 'Адміністратор', 'Системний', NULL, 'Manager',
+    50000.00, '1985-01-01', '2020-01-01', '+380000000000', 'Київ', 'вул. Головна 1', '01001');
+
+INSERT INTO "Employee_Auth" (id_employee, login, password_hash)
+VALUES ('MGR-001', 'admin',
+    '$2b$12$LQv3c1yqBWVHxkd0LHAkCOYz6TtxMQJqhN8/LewPEpvviqb1wV5vG');
