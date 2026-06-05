@@ -6,7 +6,8 @@ import uvicorn
 import os
 from dotenv import load_dotenv
 from database import get_db
-from routers import auth, categories, products, store_products, employees, customer_cards, receipts, reports
+from routers import auth, categories, products, store_products, employees, \
+                    customer_cards, receipts, reports, pdf_export
 
 load_dotenv()
 
@@ -32,6 +33,7 @@ app.include_router(employees.router)
 app.include_router(customer_cards.router)
 app.include_router(receipts.router)
 app.include_router(reports.router)
+app.include_router(pdf_export.router)
 
 frontend_path = os.path.join(os.path.dirname(__file__), "..", "frontend", "dist")
 if os.path.exists(frontend_path):
