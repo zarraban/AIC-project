@@ -29,27 +29,25 @@ async def get_receipts(
     current_user: dict = Depends(get_current_user)
 ):
     async with db.cursor() as cursor:
-        if current_user["role"] == "Manager":
-            query = """SELECT r.*, e.empl_surname || ' ' || e.empl_name AS cashier_name,
-                       cc.cust_surname || ' ' || cc.cust_name AS customer_name
-                       FROM "Receipt" r
-                       JOIN "Employee" e ON e.id_employee = r.id_employee
-                       LEFT JOIN "Customer_Card" cc ON cc.card_number = r.card_number
-                       WHERE (%s IS NULL OR r.print_date >= %s::timestamp)
-                       AND (%s IS NULL OR r.print_date <= %s::timestamp)
-                       ORDER BY r.print_date DESC"""
-            await cursor.execute(query, (date_from, date_from, date_to, date_to))
-        else:
-            query = """SELECT r.*, e.empl_surname || ' ' || e.empl_name AS cashier_name,
-                       cc.cust_surname || ' ' || cc.cust_name AS customer_name
-                       FROM "Receipt" r
-                       JOIN "Employee" e ON e.id_employee = r.id_employee
-                       LEFT JOIN "Customer_Card" cc ON cc.card_number = r.card_number
-                       WHERE r.id_employee = %s
-                       AND (%s IS NULL OR r.print_date >= %s::timestamp)
-                       AND (%s IS NULL OR r.print_date <= %s::timestamp)
-                       ORDER BY r.print_date DESC"""
-            await cursor.execute(query, (current_user["id"], date_from, date_from, date_to, date_to))
+        query = """SELECT r.*, e.empl_surname || ' ' || e.empl_name AS cashier_name,
+                   cc.cust_surname || ' ' || cc.cust_name AS customer_name
+                   FROM "Receipt" r
+                   JOIN "Employee" e ON e.id_employee = r.id_employee
+                   LEFT JOIN "Customer_Card" cc ON cc.card_number = r.card_number
+                   WHERE 1=1"""
+        params = []
+        if current_user["role"] != "Manager":
+            query += " AND r.id_employee = %s"
+            params.append(current_user["id"])
+        if date_from:
+            query += " AND r.print_date >= %s::timestamp"
+            params.append(date_from)
+            
+        if date_to:
+            query += " AND r.print_date <= %s::timestamp"
+            params.append(date_to)
+        query += " ORDER BY r.print_date DESC"
+        await cursor.execute(query, params)
         return await cursor.fetchall()
 
 
