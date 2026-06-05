@@ -11,30 +11,34 @@ router = APIRouter(prefix="/api/reports", tags=["reports"])
 async def sales_by_period(
     date_from: str,
     date_to: str,
+    id_employee: Optional[str] = None,
     db: psycopg.AsyncConnection = Depends(get_db),
     current_user: dict = Depends(require_manager)
 ):
     async with db.cursor() as cursor:
-        await cursor.execute(
-            """SELECT r.receipt_number, r.print_date,
+        query_receipts = """SELECT r.receipt_number, r.print_date,
                e.empl_surname || ' ' || e.empl_name AS cashier,
                cc.cust_surname || ' ' || cc.cust_name AS customer,
                r.sum_total, r.vat
                FROM "Receipt" r
                JOIN "Employee" e ON e.id_employee = r.id_employee
                LEFT JOIN "Customer_Card" cc ON cc.card_number = r.card_number
-               WHERE r.print_date BETWEEN %s::timestamp AND %s::timestamp
-               ORDER BY r.print_date""",
-            (date_from, date_to)
-        )
+               WHERE r.print_date BETWEEN %s::timestamp AND %s::timestamp"""
+        params = [date_from, date_to]
+        query_summary = """SELECT SUM(sum_total) AS total_sum, SUM(vat) AS total_vat, COUNT(*) AS count
+               FROM "Receipt"
+               WHERE print_date BETWEEN %s::timestamp AND %s::timestamp"""
+        
+        if id_employee:
+            query_receipts += " AND r.id_employee = %s"
+            query_summary += " AND id_employee = %s"
+            params.append(id_employee)
+        query_receipts += " ORDER BY r.print_date"
+        
+        await cursor.execute(query_receipts, params)
         receipts = await cursor.fetchall()
 
-        await cursor.execute(
-            """SELECT SUM(sum_total) AS total_sum, SUM(vat) AS total_vat, COUNT(*) AS count
-               FROM "Receipt"
-               WHERE print_date BETWEEN %s::timestamp AND %s::timestamp""",
-            (date_from, date_to)
-        )
+        await cursor.execute(query_summary, params)
         summary = await cursor.fetchone()
 
     return {"receipts": receipts, "summary": summary, "date_from": date_from, "date_to": date_to}
