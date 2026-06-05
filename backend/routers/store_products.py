@@ -49,6 +49,7 @@ async def get_store_products(
             
         query += order_clause
         await cursor.execute(query, params)
+        return await cursor.fetchall()
 
 @router.get("/{upc}")
 async def get_store_product_by_upc(
