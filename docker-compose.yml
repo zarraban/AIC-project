@@ -9,6 +9,7 @@ services:
       - DB_USER=postgres
       - DB_PASS=postgres
       - DB_NAME=zlagoda_db
+      - TZ=Europe/Kyiv
     depends_on:
       db:
         condition: service_healthy
@@ -22,6 +23,7 @@ services:
       - POSTGRES_USER=postgres
       - POSTGRES_PASSWORD=postgres
       - POSTGRES_DB=zlagoda_db
+      - TZ=Europe/Kyiv
     volumes:
       - postgres_data:/var/lib/postgresql/data
       - ./init_sql:/docker-entrypoint-initdb.d

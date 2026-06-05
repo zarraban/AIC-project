@@ -1,0 +1,115 @@
+<!DOCTYPE html>
+<html lang="uk">
+<head>
+    <meta charset="UTF-8">
+    <title>Zlagoda - Тестовий Фронтенд</title>
+    <style>
+        body { font-family: Arial, sans-serif; max-width: 600px; margin: 50px auto; padding: 20px; border: 1px solid #ccc; border-radius: 10px; }
+        input, button, select { width: 100%; padding: 10px; margin: 10px 0; font-size: 16px; }
+        button { background-color: #4CAF50; color: white; border: none; cursor: pointer; }
+        button:hover { background-color: #45a049; }
+        #status { color: green; font-weight: bold; margin-bottom: 20px; }
+        #error { color: red; font-weight: bold; margin-bottom: 20px; }
+        .hidden { display: none; }
+    </style>
+</head>
+<body>
+
+    <div id="login-section">
+        <h2>Вхід у систему</h2>
+        <div id="error"></div>
+        <input type="text" id="username" placeholder="Логін (mgr002)" value="mgr002">
+        <input type="password" id="password" placeholder="Пароль (admin)" value="admin">
+        <button onclick="login()">Увійти</button>
+    </div>
+
+    <div id="print-section" class="hidden">
+        <h2>Друк звітів (Безпечно)</h2>
+        <div id="status">Ви успішно залогінені!</div>
+        
+        <select id="report-type">
+            <option value="/api/print/report/employees">Звіт: Всі Працівники</option>
+            <option value="/api/print/report/customers">Звіт: Постійні Клієнти</option>
+            <option value="/api/print/report/categories">Звіт: Категорії Товарів</option>
+            <option value="/api/print/report/products">Звіт: Всі Товари (Довідник)</option>
+            <option value="/api/print/report/store-products">Звіт: Товари в Магазині</option>
+            <option value="/api/print/report/receipts">Звіт: Всі Чеки</option>
+        </select>
+        <button onclick="printReport()">🖨️ Відкрити та Роздрукувати Звіт</button>
+
+        <hr style="margin: 30px 0;">
+        
+        <h3>Друк конкретного чеку</h3>
+        <input type="text" id="check-number" placeholder="Номер чеку (напр. R000000001)">
+        <button onclick="printReceipt()" style="background-color: #2196F3;">🖨️ Роздрукувати Чек</button>
+
+        <button onclick="logout()" style="background-color: #f44336; margin-top: 30px;">Вийти</button>
+    </div>
+
+    <script>
+        let token = "";
+
+        async function login() {
+            const formData = new URLSearchParams();
+            formData.append('username', document.getElementById('username').value);
+            formData.append('password', document.getElementById('password').value);
+
+            try {
+                const response = await fetch('http://localhost:8000/api/auth/login', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
+                    body: formData
+                });
+
+                if (!response.ok) throw new Error("Невірний логін або пароль");
+
+                const data = await response.json();
+                token = data.access_token || data.token; 
+                
+                document.getElementById('login-section').classList.add('hidden');
+                document.getElementById('print-section').classList.remove('hidden');
+                document.getElementById('error').innerText = "";
+            } catch (err) {
+                document.getElementById('error').innerText = err.message;
+            }
+        }
+
+        async function fetchAndPrint(url) {
+            const response = await fetch(`http://localhost:8000${url}`, {
+                method: 'GET',
+                headers: { 'Authorization': `Bearer ${token}` }
+            });
+
+            if (!response.ok) {
+                if (response.status === 404) alert("Не знайдено!");
+                else alert("Помилка доступу!");
+                return;
+            }
+
+            const htmlText = await response.text();
+            const blob = new Blob([htmlText], { type: 'text/html' });
+            window.open(URL.createObjectURL(blob), '_blank');
+        }
+
+        async function printReport() {
+            const url = document.getElementById('report-type').value;
+            await fetchAndPrint(url);
+        }
+
+        async function printReceipt() {
+            const checkNum = document.getElementById('check-number').value.trim();
+            if (!checkNum) {
+                alert("Введіть номер чеку!");
+                return;
+            }
+            await fetchAndPrint(`/api/print/receipt/${checkNum}`);
+        }
+            
+        function logout() {
+            token = "";
+            document.getElementById('login-section').classList.remove('hidden');
+            document.getElementById('print-section').classList.add('hidden');
+        }
+    </script>
+</body>
+</html>
