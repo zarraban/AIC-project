@@ -25,16 +25,27 @@ class ProductUpdate(BaseModel):
 
 @router.get("/")
 async def get_products(
+    category_number: Optional[int] = None,
     db: psycopg.AsyncConnection = Depends(get_db),
     current_user: dict = Depends(get_current_user)
 ):
     async with db.cursor() as cursor:
-        await cursor.execute(
-            """SELECT p.*, c.category_name
-               FROM "Product" p
-               JOIN "Category" c ON c.category_number = p.category_number
-               ORDER BY p.product_name"""
-        )
+        if category_number is not None:
+            await cursor.execute(
+                """SELECT p.*, c.category_name
+                   FROM "Product" p
+                   JOIN "Category" c ON c.category_number = p.category_number
+                   WHERE p.category_number = %s
+                   ORDER BY p.product_name""",
+                (category_number,)
+            )
+        else:
+            await cursor.execute(
+                """SELECT p.*, c.category_name
+                   FROM "Product" p
+                   JOIN "Category" c ON c.category_number = p.category_number
+                   ORDER BY p.product_name"""
+            )
         return await cursor.fetchall()
 
 

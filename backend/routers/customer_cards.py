@@ -34,19 +34,24 @@ class CustomerCardUpdate(BaseModel):
 @router.get("/")
 async def get_customer_cards(
     search: Optional[str] = None,
+    percent: Optional[int] = None,
     db: psycopg.AsyncConnection = Depends(get_db),
     current_user: dict = Depends(get_current_user)
 ):
     async with db.cursor() as cursor:
+        query = 'SELECT * FROM "Customer_Card" WHERE 1=1'
+        params = []
         if search:
-            await cursor.execute(
-                """SELECT * FROM "Customer_Card"
-                   WHERE LOWER(cust_surname) LIKE LOWER(%s)
-                   ORDER BY cust_surname, cust_name""",
-                (f"%{search}%",)
-            )
-        else:
-            await cursor.execute('SELECT * FROM "Customer_Card" ORDER BY cust_surname, cust_name')
+            query += ' AND LOWER(cust_surname) LIKE LOWER(%s)'
+            params.append(f"%{search}%")
+            
+        if percent is not None:
+            query += ' AND percent = %s'
+            params.append(percent)
+            
+        query += ' ORDER BY cust_surname, cust_name'
+        
+        await cursor.execute(query, params)
         return await cursor.fetchall()
 
 

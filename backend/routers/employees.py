@@ -47,16 +47,27 @@ class PasswordChange(BaseModel):
 
 @router.get("/")
 async def get_employees(
+    surname: Optional[str] = None,
     db: psycopg.AsyncConnection = Depends(get_db),
     current_user: dict = Depends(require_manager)
 ):
     async with db.cursor() as cursor:
-        await cursor.execute(
-            """SELECT e.*, ea.login
-               FROM "Employee" e
-               LEFT JOIN "Employee_Auth" ea ON ea.id_employee = e.id_employee
-               ORDER BY e.empl_surname, e.empl_name"""
-        )
+        if surname:
+            await cursor.execute(
+                """SELECT e.*, ea.login
+                   FROM "Employee" e
+                   LEFT JOIN "Employee_Auth" ea ON ea.id_employee = e.id_employee
+                   WHERE e.empl_surname ILIKE %s
+                   ORDER BY e.empl_surname, e.empl_name""",
+                (f"%{surname}%",)
+            )
+        else:
+            await cursor.execute(
+                """SELECT e.*, ea.login
+                   FROM "Employee" e
+                   LEFT JOIN "Employee_Auth" ea ON ea.id_employee = e.id_employee
+                   ORDER BY e.empl_surname, e.empl_name"""
+            )
         return await cursor.fetchall()
 
 

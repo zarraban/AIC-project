@@ -22,7 +22,7 @@ async def get_categories(
     current_user: dict = Depends(get_current_user)
 ):
     async with db.cursor() as cursor:
-        await cursor.execute('SELECT * FROM "Category" ORDER BY category_number')
+        await cursor.execute('SELECT * FROM "Category" ORDER BY category_name')
         return await cursor.fetchall()
 
 
