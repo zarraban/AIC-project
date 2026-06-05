@@ -79,11 +79,57 @@ CREATE TABLE "Sale" (
     FOREIGN KEY (receipt_number) REFERENCES "Receipt"(receipt_number) ON UPDATE CASCADE ON DELETE CASCADE
 );
 
-INSERT INTO "Employee" (id_employee, empl_surname, empl_name, empl_patronymic, empl_role,
-    salary, date_of_birth, date_of_start, phone_number, city, street, zip_code)
-VALUES ('MGR-001', 'Адміністратор', 'Системний', NULL, 'Manager',
-    50000.00, '1985-01-01', '2020-01-01', '+380000000000', 'Київ', 'вул. Головна 1', '01001');
-
-INSERT INTO "Employee_Auth" (id_employee, login, password_hash)
-VALUES ('MGR-001', 'admin',
-    '$2b$12$LQv3c1yqBWVHxkd0LHAkCOYz6TtxMQJqhN8/LewPEpvviqb1wV5vG');
+INSERT INTO "Category" (category_number, category_name) VALUES
+(1, 'Молочні продукти'),
+(2, 'М''ясні вироби'),
+(3, 'Хлібобулочні вироби'),
+(4, 'Напої'),
+(5, 'Солодощі');
+INSERT INTO "Product" (id_product, category_number, product_name, manufacturer, characteristics) VALUES
+(1, 1, 'Молоко 2.5%', 'Яготинське', 'Пастеризоване, 900г'),
+(2, 2, 'Ковбаса Лікарська', 'Глобино', 'Варена, вищий сорт'),
+(3, 3, 'Хліб Український', 'Київхліб', 'Житній, нарізний'),
+(4, 4, 'Сік Яблучний', 'Сандора', '1 літр, без цукру'),
+(5, 5, 'Шоколад Світоч', 'Світоч', 'Чорний 70% какао');
+INSERT INTO "Store_Product" (upc, upc_prom, id_product, selling_price, products_number, promotional_product) VALUES
+('111111111111', NULL, 1, 35.50, 100, FALSE),
+('222222222222', NULL, 2, 150.00, 50, FALSE),
+('333333333333', NULL, 3, 25.00, 40, FALSE),
+('444444444444', NULL, 4, 45.00, 60, FALSE),
+('11111111111P', '111111111111', 1, 28.40, 20, TRUE);
+INSERT INTO "Employee" (id_employee, empl_surname, empl_name, empl_patronymic, empl_role, salary, date_of_birth, date_of_start, phone_number, city, street, zip_code) VALUES
+('MGR-001', 'Шевченко', 'Андрій', 'Миколайович', 'Manager', 25000.00, '1985-05-12', '2023-01-15', '+380501234567', 'Київ', 'Хрещатик, 1', '01001'),
+('CSH-001', 'Коваленко', 'Марія', 'Іванівна', 'Cashier', 15000.00, '1995-08-24', '2023-03-20', '+380671234567', 'Київ', 'Політехнічна, 10', '03056'),
+('CSH-002', 'Бойко', 'Олег', 'Петрович', 'Cashier', 15000.00, '1998-11-05', '2023-05-10', '+380631234567', 'Київ', 'Саксаганського, 50', '01033'),
+('CSH-003', 'Мельник', 'Олена', 'Василівна', 'Cashier', 14500.00, '1992-02-14', '2023-06-01', '+380991234567', 'Київ', 'Велика Васильківська, 22', '01004'),
+('CSH-004', 'Кравченко', 'Віктор', 'Олександрович', 'Cashier', 14000.00, '2000-09-30', '2023-08-15', '+380971234567', 'Київ', 'Перемоги, 45', '03057');
+INSERT INTO "Employee_Auth" (id_employee, login, password_hash) VALUES
+('MGR-002', 'mgr002', '$2b$12$LQv3c1yqBWVHxkd0LHAkCOYz6TtxMQJqhN8/LewPEpvviqb1wV5vG'),
+('CSH-001', 'csh001', '$2b$12$LQv3c1yqBWVHxkd0LHAkCOYz6TtxMQJqhN8/LewPEpvviqb1wV5vG'),
+('CSH-002', 'csh002', '$2b$12$LQv3c1yqBWVHxkd0LHAkCOYz6TtxMQJqhN8/LewPEpvviqb1wV5vG'),
+('CSH-003', 'csh003', '$2b$12$LQv3c1yqBWVHxkd0LHAkCOYz6TtxMQJqhN8/LewPEpvviqb1wV5vG'),
+('CSH-004', 'csh004', '$2b$12$LQv3c1yqBWVHxkd0LHAkCOYz6TtxMQJqhN8/LewPEpvviqb1wV5vG');
+INSERT INTO "Customer_Card" (card_number, cust_surname, cust_name, cust_patronymic, phone_number, city, street, zip_code, percent) VALUES
+('C000000000001', 'Іваненко', 'Петро', 'Олексійович', '+380501111111', 'Київ', 'Антоновича, 15', '01004', 5),
+('C000000000002', 'Ткаченко', 'Анна', 'Сергіївна', '+380672222222', 'Київ', 'Басейна, 5', '01004', 10),
+('C000000000003', 'Лисенко', 'Дмитро', 'Володимирович', '+380633333333', 'Бровари', 'Київська, 10', '07400', 3),
+('C000000000004', 'Савченко', 'Юлія', 'Ігорівна', '+380994444444', 'Київ', 'Голосіївська, 20', '03039', 15),
+('C000000000005', 'Пономаренко', 'Сергій', 'Юрійович', '+380975555555', 'Вишневе', 'Святошинська, 40', '08132', 7);
+INSERT INTO "Receipt" (receipt_number, id_employee, card_number, print_date, sum_total, vat) VALUES
+('R000000001', 'CSH-001', 'C000000000001', '2023-10-01 10:15:00', 209.95, 41.99),
+('R000000002', 'CSH-002', NULL, '2023-10-01 11:30:00', 150.00, 30.00),
+('R000000003', 'CSH-001', 'C000000000002', '2023-10-02 14:45:00', 346.50, 69.30),
+('R000000004', 'CSH-003', 'C000000000003', '2023-10-02 16:20:00', 129.88, 25.98),
+('R000000005', 'CSH-004', 'C000000000004', '2023-10-03 09:10:00', 450.50, 90.10);
+INSERT INTO "Sale" (upc, receipt_number, product_number, selling_price) VALUES
+('111111111111', 'R000000001', 2, 35.50),
+('222222222222', 'R000000001', 1, 150.00),
+('222222222222', 'R000000002', 1, 150.00),
+('444444444444', 'R000000003', 3, 45.00),
+('222222222222', 'R000000003', 1, 150.00),
+('111111111111', 'R000000003', 1, 35.50),
+('11111111111P', 'R000000003', 1, 28.40),
+('111111111111', 'R000000004', 1, 35.50),
+('11111111111P', 'R000000004', 1, 28.40),
+('333333333333', 'R000000005', 4, 25.00),
+('222222222222', 'R000000005', 2, 150.00);
