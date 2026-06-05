@@ -28,30 +28,46 @@ class StoreProductUpdate(BaseModel):
 @router.get("/")
 async def get_store_products(
     promotional: Optional[bool] = None,
+    sort_by: str = "name",
+    db: psycopg.AsyncConnection = Depends(get_db),
+    current_user: dict = Depends(get_current_user)
+):
+    order_clause = " ORDER BY p.product_name"
+    if sort_by == "quantity":
+        order_clause = " ORDER BY sp.products_number"
+
+    async with db.cursor() as cursor:
+        query = """SELECT sp.*, p.product_name, p.manufacturer, c.category_name
+                   FROM "Store_Product" sp
+                   JOIN "Product" p ON p.id_product = sp.id_product
+                   JOIN "Category" c ON c.category_number = p.category_number"""
+        params = []
+        
+        if promotional is not None:
+            query += " WHERE sp.promotional_product = %s"
+            params.append(promotional)
+            
+        query += order_clause
+        await cursor.execute(query, params)
+
+@router.get("/{upc}")
+async def get_store_product_by_upc(
+    upc: str,
     db: psycopg.AsyncConnection = Depends(get_db),
     current_user: dict = Depends(get_current_user)
 ):
     async with db.cursor() as cursor:
-        if promotional is None:
-            await cursor.execute(
-                """SELECT sp.*, p.product_name, p.manufacturer, c.category_name
-                   FROM "Store_Product" sp
-                   JOIN "Product" p ON p.id_product = sp.id_product
-                   JOIN "Category" c ON c.category_number = p.category_number
-                   ORDER BY p.product_name"""
-            )
-        else:
-            await cursor.execute(
-                """SELECT sp.*, p.product_name, p.manufacturer, c.category_name
-                   FROM "Store_Product" sp
-                   JOIN "Product" p ON p.id_product = sp.id_product
-                   JOIN "Category" c ON c.category_number = p.category_number
-                   WHERE sp.promotional_product = %s
-                   ORDER BY p.product_name""",
-                (promotional,)
-            )
-        return await cursor.fetchall()
-
+        await cursor.execute(
+            """SELECT sp.selling_price, sp.products_number, p.product_name, p.characteristics
+               FROM "Store_Product" sp
+               JOIN "Product" p ON p.id_product = sp.id_product
+               WHERE sp.upc = %s""",
+            (upc,)
+        )
+        prod = await cursor.fetchone()
+        if not prod:
+            raise HTTPException(status_code=404, detail="Товар не знайдено")
+        return prod
 
 @router.post("/", status_code=201)
 async def create_store_product(
