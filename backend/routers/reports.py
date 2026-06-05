@@ -83,7 +83,6 @@ async def employee_sales(
         )
         return await cursor.fetchall()
 
-
 @router.get("/customer-purchases")
 async def customer_purchases(
     date_from: Optional[str] = None,
@@ -106,3 +105,69 @@ async def customer_purchases(
             (date_from, date_from, date_to, date_to)
         )
         return await cursor.fetchall()
+
+@router.get("/product-sales")
+async def product_sales(
+    id_product: int,
+    date_from: str,
+    date_to: str,
+    db: psycopg.AsyncConnection = Depends(get_db),
+    current_user: dict = Depends(require_manager)
+):
+    async with db.cursor() as cursor:
+        await cursor.execute(
+            """SELECT SUM(s.product_number) AS total_sold
+               FROM "Sale" s
+               JOIN "Receipt" r ON r.receipt_number = s.receipt_number
+               JOIN "Store_Product" sp ON sp.upc = s.upc
+               WHERE sp.id_product = %s
+               AND r.print_date BETWEEN %s::timestamp AND %s::timestamp""",
+            (id_product, date_from, date_to)
+        )
+        res = await cursor.fetchone()
+        return {"id_product": id_product, "total_sold": res["total_sold"] if res and res["total_sold"] else 0}
+@router.get("/my-sales")
+async def my_sales(
+    date_from: str,
+    date_to: str,
+    db: psycopg.AsyncConnection = Depends(get_db),
+    current_user: dict = Depends(get_current_user)
+):
+    if current_user["role"] != "Cashier":
+        from fastapi import HTTPException
+        raise HTTPException(status_code=403, detail="Доступно лише касирам")
+    
+    async with db.cursor() as cursor:
+        await cursor.execute(
+            """SELECT SUM(sum_total) AS total_sum
+               FROM "Receipt"
+               WHERE id_employee = %s
+               AND print_date BETWEEN %s::timestamp AND %s::timestamp""",
+            (current_user["id"], date_from, date_to)
+        )
+        res = await cursor.fetchone()
+        return {"id_employee": current_user["id"], "total_sum": res["total_sum"] if res and res["total_sum"] else 0}
+@router.get("/my-product-sales")
+async def my_product_sales(
+    id_product: int,
+    date_from: str,
+    date_to: str,
+    db: psycopg.AsyncConnection = Depends(get_db),
+    current_user: dict = Depends(get_current_user)
+):
+    if current_user["role"] != "Cashier":
+        from fastapi import HTTPException
+        raise HTTPException(status_code=403, detail="Доступно лише касирам")
+    async with db.cursor() as cursor:
+        await cursor.execute(
+            """SELECT SUM(s.product_number) AS total_sold
+               FROM "Sale" s
+               JOIN "Receipt" r ON r.receipt_number = s.receipt_number
+               JOIN "Store_Product" sp ON sp.upc = s.upc
+               WHERE sp.id_product = %s
+               AND r.id_employee = %s
+               AND r.print_date BETWEEN %s::timestamp AND %s::timestamp""",
+            (id_product, current_user["id"], date_from, date_to)
+        )
+        res = await cursor.fetchone()
+        return {"id_product": id_product, "total_sold": res["total_sold"] if res and res["total_sold"] else 0}
