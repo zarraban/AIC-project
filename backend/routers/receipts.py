@@ -96,7 +96,7 @@ async def create_receipt(
 
         for item in data.items:
             await cursor.execute(
-                'SELECT selling_price, products_number FROM "Store_Product" WHERE upc = %s',
+                'SELECT selling_price, products_number FROM "Store_Product" WHERE upc = %s FOR UPDATE',
                 (item.upc,)
             )
             sp = await cursor.fetchone()
