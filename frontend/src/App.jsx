@@ -1,66 +1,78 @@
 import React from 'react';
 import { BrowserRouter as Router, Routes, Route, Navigate } from 'react-router-dom';
+
 import { AuthProvider, useAuth } from './context/AuthContext';
 import Login from './pages/Login';
 import ManagerLayout from './layouts/ManagerLayout';
 import CashierLayout from './layouts/CashierLayout';
 
+import Employees from './pages/manager/Employees';
+import Categories from "./pages/manager/Categories.jsx";
+import Products from "./pages/manager/Products.jsx";
+
 function ProtectedRoute({ allowedRole, children }) {
-  const { user } = useAuth();
-  if (!user) {
-    return <Navigate to="/login" replace />;
-  }
-  if (user.role !== allowedRole){
-    return <Navigate to="/login" replace />;
-  }
-  return children;
+    const { user } = useAuth();
+    if (!user) {
+        return <Navigate to="/login" replace />;
+    }
+
+    if (user.role !== allowedRole) {
+        return <Navigate to="/login" replace />;
+    }
+    return children;
 }
 
 function RootRedirect() {
-  const { user } = useAuth();
-  if (!user) {
+    const { user } = useAuth();
+    if (!user) {
+        return <Navigate to="/login" replace />;
+    }
+    if (user.role === 'manager') {
+        return <Navigate to="/manager/employees" replace />;
+    }
+    if (user.role === 'cashier') {
+        return <Navigate to="/cashier/categories" replace />;
+    }
     return <Navigate to="/login" replace />;
-  }
-  if (user.role === 'manager'){
-    return <Navigate to="/manager/employees" replace />;
-  }
-  if (user.role === 'cashier') {
-    return <Navigate to="/cashier/new-receipt" replace />;
-  }
-  return <Navigate to="/login" replace />;
 }
 
 function App() {
-  return (
-      <AuthProvider>
-        <Router>
-          <Routes>
-            <Route path="/" element={<RootRedirect />} />
-            <Route path="/login" element={<Login />} />
+    return (
+        <AuthProvider>
+            <Router>
+                <Routes>
+                    <Route path="/" element={<RootRedirect />} />
+                    <Route path="/login" element={<Login />} />
 
-            <Route
-                path="/manager/*"
-                element={
-                  <ProtectedRoute allowedRole="manager">
-                    <ManagerLayout />
-                  </ProtectedRoute>
-                }
-            />
+                    <Route
+                        path="/manager"
+                        element={
+                            <ProtectedRoute allowedRole="manager">
+                                <ManagerLayout />
+                            </ProtectedRoute>
+                        }
+                    >
+                        <Route path="employees" element={<Employees />} />
+                        <Route path="categories" element={<Categories />} />
+                        <Route path="products" element={<Products />} />
+                    </Route>
 
-            <Route
-                path="/cashier/*"
-                element={
-                  <ProtectedRoute allowedRole="cashier">
-                    <CashierLayout />
-                  </ProtectedRoute>
-                }
-            />
+                    <Route
+                        path="/cashier*"
+                        element={
+                            <ProtectedRoute allowedRole="cashier">
+                                <CashierLayout />
+                            </ProtectedRoute>
+                        }
+                    >
 
-            <Route path="*" element={<Navigate to="/" replace />} />
-          </Routes>
-        </Router>
-      </AuthProvider>
-  );
+                    </Route>
+
+                    <Route path="*" element={<Navigate to="/" replace />} />
+                </Routes>
+            </Router>
+        </AuthProvider>
+    );
 }
 
 export default App;

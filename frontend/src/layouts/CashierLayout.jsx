@@ -1,5 +1,5 @@
 import React from 'react';
-import { Outlet, useNavigate } from 'react-router-dom';
+import { NavLink, Outlet, useNavigate } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
 
 export default function CashierLayout() {
@@ -11,17 +11,25 @@ export default function CashierLayout() {
         navigate('/login');
     };
 
+    const linkClass = ({ isActive }) =>
+        `block p-3 rounded cursor-pointer transition-colors ${
+            isActive ? 'bg-blue-700 font-medium' : 'hover:bg-blue-700'
+        }`;
+
     return (
         <div className="flex min-h-screen bg-gray-50">
             <aside className="w-64 bg-blue-800 text-white flex flex-col shadow-lg">
                 <div className="p-4">
                     <h2 className="text-xl font-bold mb-8 text-center">ZLAGODA Cashier</h2>
                     <nav className="space-y-2">
-                        <div className="p-3 bg-blue-700 rounded cursor-pointer font-medium">🧾 Новий чек</div>
-                        <div className="p-3 hover:bg-blue-700 rounded cursor-pointer">🔍 Пошук товарів</div>
+                        <NavLink to="/cashier/new-receipt" className={linkClass}>
+                            🧾 Новий чек
+                        </NavLink>
+                        <NavLink to="/cashier/products" className={linkClass}>
+                            🔍 Пошук товарів
+                        </NavLink>
                     </nav>
                 </div>
-
 
                 <div className="mt-auto p-4 border-t border-blue-500">
                     <button
@@ -33,7 +41,7 @@ export default function CashierLayout() {
                 </div>
             </aside>
 
-            <main className="flex-1 p-8">
+            <main className="flex-1 p-8 overflow-auto">
                 <Outlet />
             </main>
         </div>

@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
+import api from "../services/api.js";
 
 export default function Login() {
     const [id, setId] = useState('');
@@ -9,27 +10,39 @@ export default function Login() {
     const navigate = useNavigate();
     const { login } = useAuth();
 
-    const handleLogin = (e) => {
+    const handleLogin = async (e) => {
         e.preventDefault();
 
-        if (id === 'M-01' && password === '123') {
-            login({
-                token: 'fake-jwt-manager',
-                role: 'manager',
-                name: 'Іван',
-                id: 'M-01'
+        const params = new URLSearchParams();
+        params.append('grant_type', 'password');
+        params.append('username', id);
+        params.append('password', password);
+
+        try {
+            const response = await api.post('/auth/login', params, {
+                headers: {
+                    'Content-Type': 'application/x-www-form-urlencoded'
+                }
             });
-            navigate('/manager/employees');
-        } else if (id === 'C-01' && password === '123') {
-            login({
-                token: 'fake-jwt-cashier',
-                role: 'cashier',
-                name: 'Олена',
-                id: 'C-01'
-            });
-            navigate('/cashier/new-receipt');
-        } else {
-            alert('Неправильний логін або пароль!');
+
+            console.log('Успіх!', response.data);
+
+            // Ось тут ми дістаємо роль з відповіді сервера
+            // ВАЖЛИВО: Перевір у консолі, чи точно поле називається 'role'.
+            // Якщо його там немає, можливо, воно всередині іншого об'єкта.
+            const userRole = response.data.role;
+
+            login(response.data);
+
+            // Перевіряємо роль. Враховуємо, що може бути 'Manager' або 'manager'
+            if (userRole && userRole.toLowerCase() === 'manager') {
+                navigate('/manager/employees');
+            } else {
+                navigate('/cashier/new-receipt');
+            }
+        } catch (err) {
+            console.error('Помилка логіну:', err.response?.data || err.message);
+            alert('Невірний логін або пароль!');
         }
     };
 
