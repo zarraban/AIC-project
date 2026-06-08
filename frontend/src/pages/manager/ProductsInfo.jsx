@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import DataTable from '../../components/DataTable';
 import Modal from '../../components/Modal';
-import { getProducts, createProduct, updateProduct, deleteProduct } from '../../services/productService';
+import { getProducts, createProduct, updateProduct, deleteProduct } from '../../services/productInfoService.js';
 import { getCategories } from '../../services/categoryService'; // Потрібно для списку категорій
 
 const EMPTY = { id_product: '', category_number: '', product_name: '', manufacturer: '', characteristics: '' };
@@ -105,7 +105,7 @@ export default function ProductsInfo() {
                     </button>
                     <button onClick={openAdd}
                             className="px-4 py-2 text-sm font-bold text-white bg-green-600 rounded-md hover:bg-green-700 transition-colors">
-                        + Додати товар
+                        + Додати
                     </button>
                 </div>
             </div>
@@ -113,7 +113,7 @@ export default function ProductsInfo() {
             <div className="flex gap-4 mb-4 print:hidden">
                 <input
                     type="text"
-                    placeholder="Пошук за назвою..."
+                    placeholder="Пошук за назвою"
                     value={search}
                     onChange={(e) => setSearch(e.target.value)}
                     className="flex-1 max-w-xs px-4 py-2 border border-gray-300 rounded-md text-sm focus:outline-none focus:ring-1 focus:ring-green-600"

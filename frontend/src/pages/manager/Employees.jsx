@@ -152,7 +152,7 @@
                             </button>
                         ))}
                     </div>
-                    <input type="text" placeholder="Пошук за прізвищем..."
+                    <input type="text" placeholder="Пошук за прізвищем"
                            value={search} onChange={(e) => setSearch(e.target.value)}
                            className="px-4 py-2 border border-gray-300 rounded-md text-sm focus:outline-none focus:ring-1 focus:ring-green-600"
                     />

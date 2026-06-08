@@ -76,7 +76,7 @@ function Categories() {
             </div>
 
             <div className="mb-4 print:hidden">
-                <input type="text" placeholder="Пошук за назвою..."
+                <input type="text" placeholder="Пошук за назвою"
                        value={search} onChange={(e) => setSearch(e.target.value)}
                        className="w-full max-w-xs px-4 py-2 border border-gray-300 rounded-md text-sm focus:outline-none focus:ring-1 focus:ring-green-600"
                 />

@@ -10,6 +10,7 @@ import CashierLayout from './layouts/CashierLayout';
 import Employees from './pages/manager/Employees';
 import Categories from "./pages/manager/Categories.jsx";
 import ProductsInfo from "./pages/manager/ProductsInfo.jsx";
+import ProductsStore from "./pages/manager/ProductsStore.jsx";
 
 function ProtectedRoute({ allowedRole, children }) {
     const { user } = useAuth();
@@ -56,10 +57,11 @@ function App() {
                         <Route path="employees" element={<Employees />} />
                         <Route path="categories" element={<Categories />} />
                         <Route path="products-info" element={<ProductsInfo />} />
+                        <Route path="products-store" element={<ProductsStore />} />
                     </Route>
 
                     <Route
-                        path="/cashier*"
+                        path="/cashier/*"
                         element={
                             <ProtectedRoute allowedRole="cashier">
                                 <CashierLayout />
