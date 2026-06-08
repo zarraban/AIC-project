@@ -28,8 +28,8 @@ export default function ManagerLayout() {
                         <NavLink to="/manager/categories" className={linkClass}>
                             📦 Категорії
                         </NavLink>
-                        <NavLink to="/manager/products" className={linkClass}>
-                            🛒 Товари
+                        <NavLink to="/manager/products-info" className={linkClass}>
+                            📚 Довідник товарів
                         </NavLink>
                     </nav>
                 </div>

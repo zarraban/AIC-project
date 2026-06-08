@@ -104,11 +104,11 @@ INSERT INTO "Employee" (id_employee, empl_surname, empl_name, empl_patronymic, e
 ('CSH-003', 'Мельник', 'Олена', 'Василівна', 'Cashier', 14500.00, '1992-02-14', '2023-06-01', '+380991234567', 'Київ', 'Велика Васильківська, 22', '01004'),
 ('CSH-004', 'Кравченко', 'Віктор', 'Олександрович', 'Cashier', 14000.00, '2000-09-30', '2023-08-15', '+380971234567', 'Київ', 'Перемоги, 45', '03057');
 INSERT INTO "Employee_Auth" (id_employee, login, password_hash) VALUES
-('MGR-001', 'mgr1', '$2b$12$KzH1oIfm0i0QkwHK.O.oh.UbPlnRTbRI9BhbsXJkg2QYs4RrD3T6O'),
-('CSH-001', 'csh1', '$2b$12$KzH1oIfm0i0QkwHK.O.oh.UbPlnRTbRI9BhbsXJkg2QYs4RrD3T6O'),
-('CSH-002', 'csh2', '$2b$12$KzH1oIfm0i0QkwHK.O.oh.UbPlnRTbRI9BhbsXJkg2QYs4RrD3T6O'),
-('CSH-003', 'csh3', '$2b$12$KzH1oIfm0i0QkwHK.O.oh.UbPlnRTbRI9BhbsXJkg2QYs4RrD3T6O'),
-('CSH-004', 'csh4', '$2b$12$KzH1oIfm0i0QkwHK.O.oh.UbPlnRTbRI9BhbsXJkg2QYs4RrD3T6O');
+('MGR-001', 'MGR-001', '$2b$12$KzH1oIfm0i0QkwHK.O.oh.UbPlnRTbRI9BhbsXJkg2QYs4RrD3T6O'),
+('CSH-001', 'CSH-001', '$2b$12$KzH1oIfm0i0QkwHK.O.oh.UbPlnRTbRI9BhbsXJkg2QYs4RrD3T6O'),
+('CSH-002', 'CSH-002', '$2b$12$KzH1oIfm0i0QkwHK.O.oh.UbPlnRTbRI9BhbsXJkg2QYs4RrD3T6O'),
+('CSH-003', 'CSH-003', '$2b$12$KzH1oIfm0i0QkwHK.O.oh.UbPlnRTbRI9BhbsXJkg2QYs4RrD3T6O'),
+('CSH-004', 'CSH-004', '$2b$12$KzH1oIfm0i0QkwHK.O.oh.UbPlnRTbRI9BhbsXJkg2QYs4RrD3T6O');
 INSERT INTO "Customer_Card" (card_number, cust_surname, cust_name, cust_patronymic, phone_number, city, street, zip_code, percent) VALUES
 ('C000000000001', 'Іваненко', 'Петро', 'Олексійович', '+380501111111', 'Київ', 'Антоновича, 15', '01004', 5),
 ('C000000000002', 'Ткаченко', 'Анна', 'Сергіївна', '+380672222222', 'Київ', 'Басейна, 5', '01004', 10),

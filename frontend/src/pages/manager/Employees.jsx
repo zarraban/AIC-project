@@ -278,7 +278,6 @@
                     </div>
                 </Modal>
 
-                {/* Модалка зміни пароля */}
                 <Modal isOpen={pwdModal.open} onClose={() => setPwdModal({ open: false, id: null })}
                        title="Змінити пароль" onSubmit={handlePasswordChange} loading={saving} submitLabel="Змінити">
                     {error && <div className="mb-4 p-3 bg-red-50 border-l-4 border-red-600 text-red-700 text-sm">{error}</div>}

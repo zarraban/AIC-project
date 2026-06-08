@@ -2,13 +2,14 @@ import React from 'react';
 import { BrowserRouter as Router, Routes, Route, Navigate } from 'react-router-dom';
 
 import { AuthProvider, useAuth } from './context/AuthContext';
+
 import Login from './pages/Login';
 import ManagerLayout from './layouts/ManagerLayout';
 import CashierLayout from './layouts/CashierLayout';
 
 import Employees from './pages/manager/Employees';
 import Categories from "./pages/manager/Categories.jsx";
-import Products from "./pages/manager/Products.jsx";
+import ProductsInfo from "./pages/manager/ProductsInfo.jsx";
 
 function ProtectedRoute({ allowedRole, children }) {
     const { user } = useAuth();
@@ -54,7 +55,7 @@ function App() {
                     >
                         <Route path="employees" element={<Employees />} />
                         <Route path="categories" element={<Categories />} />
-                        <Route path="products" element={<Products />} />
+                        <Route path="products-info" element={<ProductsInfo />} />
                     </Route>
 
                     <Route

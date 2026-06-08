@@ -27,14 +27,10 @@ export default function Login() {
 
             console.log('Успіх!', response.data);
 
-            // Ось тут ми дістаємо роль з відповіді сервера
-            // ВАЖЛИВО: Перевір у консолі, чи точно поле називається 'role'.
-            // Якщо його там немає, можливо, воно всередині іншого об'єкта.
             const userRole = response.data.role;
 
             login(response.data);
 
-            // Перевіряємо роль. Враховуємо, що може бути 'Manager' або 'manager'
             if (userRole && userRole.toLowerCase() === 'manager') {
                 navigate('/manager/employees');
             } else {

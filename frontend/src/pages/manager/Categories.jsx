@@ -61,7 +61,6 @@ function Categories() {
 
     return (
         <div>
-            {/* Toolbar */}
             <div className="flex items-center justify-between mb-6 print:hidden">
                 <h1 className="text-2xl font-bold text-gray-900">Категорії</h1>
                 <div className="flex gap-3">
@@ -87,7 +86,6 @@ function Categories() {
                 <div className="mb-4 p-3 bg-red-50 border-l-4 border-red-600 text-red-700 text-sm">{error}</div>
             )}
 
-            {/* Print header — видно тільки при друку */}
             <div className="hidden print:block mb-6 text-center border-b pb-4">
                 <h1 className="text-2xl font-bold">Міні-супермаркет ZLAGODA</h1>
                 <h2 className="text-lg">Звіт: Категорії товарів</h2>
@@ -96,7 +94,6 @@ function Categories() {
 
             <DataTable columns={columns} data={filtered} loading={loading} onEdit={openEdit} onDelete={handleDelete} />
 
-            {/* Print footer */}
             <div className="hidden print:block mt-6 border-t pt-4 text-sm text-gray-500 text-center">
                 Всього записів: {filtered.length}
             </div>
