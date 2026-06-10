@@ -8,7 +8,7 @@ const EMPTY = { category_number: '', category_name: '' };
 const inputCls = "w-full px-4 py-2 border border-gray-300 rounded-md text-sm focus:outline-none focus:ring-1 focus:ring-green-600 disabled:bg-gray-50 disabled:text-gray-400";
 const labelCls = "block text-xs font-bold text-gray-700 uppercase tracking-wider mb-1.5";
 
-function Categories() {
+function ProductsCategories() {
     const [data, setData] = useState([]);
     const [loading, setLoading] = useState(true);
     const [search, setSearch] = useState('');
@@ -62,7 +62,7 @@ function Categories() {
     return (
         <div>
             <div className="flex items-center justify-between mb-6 print:hidden">
-                <h1 className="text-2xl font-bold text-gray-900">Категорії</h1>
+                <h1 className="text-2xl font-bold text-gray-900">Категорії товарів</h1>
                 <div className="flex gap-3">
                     <button onClick={() => window.print()}
                             className="px-4 py-2 text-sm font-bold border border-gray-300 rounded-md hover:bg-gray-50 transition-colors">
@@ -122,4 +122,4 @@ function Categories() {
     );
 }
 
-export default Categories;
+export default ProductsCategories;

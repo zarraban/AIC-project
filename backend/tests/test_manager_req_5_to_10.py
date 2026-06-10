@@ -31,7 +31,7 @@ async def test_m8_categories_sorted(async_client: AsyncClient, manager_headers):
     assert resp.status_code == 200
     data = resp.json()
     names = [c["category_name"] for c in data]
-    assert names == sorted(names), "Categories are not sorted by name"
+    assert names == sorted(names), "ProductsCategories are not sorted by name"
 
 async def test_m9_products_sorted(async_client: AsyncClient, manager_headers):
     resp = await async_client.get("/api/products/", headers=manager_headers)

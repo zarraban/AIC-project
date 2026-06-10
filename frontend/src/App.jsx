@@ -8,9 +8,10 @@ import ManagerLayout from './layouts/ManagerLayout';
 import CashierLayout from './layouts/CashierLayout';
 
 import Employees from './pages/manager/Employees';
-import Categories from "./pages/manager/Categories.jsx";
+import ProductsCategories from "./pages/manager/ProductsCategories.jsx";
 import ProductsInfo from "./pages/manager/ProductsInfo.jsx";
 import ProductsStore from "./pages/manager/ProductsStore.jsx";
+import CustomerCards from "./pages/manager/CustomerCards.jsx";
 
 function ProtectedRoute({ allowedRole, children }) {
     const { user } = useAuth();
@@ -55,9 +56,10 @@ function App() {
                         }
                     >
                         <Route path="employees" element={<Employees />} />
-                        <Route path="categories" element={<Categories />} />
+                        <Route path="products-categories" element={<ProductsCategories />} />
                         <Route path="products-info" element={<ProductsInfo />} />
                         <Route path="products-store" element={<ProductsStore />} />
+                        <Route path="customer-cards" element={<CustomerCards />} />
                     </Route>
 
                     <Route

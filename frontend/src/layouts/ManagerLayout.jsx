@@ -25,8 +25,11 @@ export default function ManagerLayout() {
                         <NavLink to="/manager/employees" className={linkClass}>
                             👥 Працівники
                         </NavLink>
-                        <NavLink to="/manager/categories" className={linkClass}>
-                            🗂️ Категорії
+                        <NavLink to="/manager/customer-cards" className={linkClass}>
+                            👨🏻‍💼 Постійні клієнти
+                        </NavLink>
+                        <NavLink to="/manager/products-categories" className={linkClass}>
+                            🗂️ Категорії товарів
                         </NavLink>
                         <NavLink to="/manager/products-info" className={linkClass}>
                             📚 Довідник товарів
@@ -34,6 +37,7 @@ export default function ManagerLayout() {
                         <NavLink to="/manager/products-store" className={linkClass}>
                             🛍️ Товари в магазині
                         </NavLink>
+
                     </nav>
                 </div>
 
