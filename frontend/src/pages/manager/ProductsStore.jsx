@@ -194,7 +194,7 @@ export default function StoreProducts() {
 
             <div className="hidden print:block mb-6 text-center border-b pb-4">
                 <h1 className="text-2xl font-bold">Міні-супермаркет ZLAGODA</h1>
-                <h2 className="text-lg">Звіт: Товари в магазині (за кількістю)</h2>
+                <h2 className="text-lg">Звіт: Товари в магазиніа</h2>
                 <p className="text-sm text-gray-500">{new Date().toLocaleDateString('uk-UA')}</p>
             </div>
 

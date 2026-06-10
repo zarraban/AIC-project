@@ -17,8 +17,8 @@ export default function ManagerLayout() {
         }`;
 
     return (
-        <div className="flex min-h-screen bg-gray-50">
-            <aside className="w-64 bg-green-800 text-white flex flex-col shadow-lg">
+        <div className="flex min-h-screen print:bg-white bg-gray-50 print:block">
+            <aside className="w-64 bg-green-800 text-white flex flex-col shadow-lg print:hidden">
                 <div className="p-4">
                     <h2 className="text-xl font-bold mb-8 text-center">ZLAGODA Manager</h2>
                     <nav className="space-y-2">
@@ -37,6 +37,9 @@ export default function ManagerLayout() {
                         <NavLink to="/manager/products-store" className={linkClass}>
                             🛍️ Товари в магазині
                         </NavLink>
+                        <NavLink to="/manager/receipts" className={linkClass}>
+                            🧾 Чеки
+                        </NavLink>
 
                     </nav>
                 </div>
@@ -51,7 +54,7 @@ export default function ManagerLayout() {
                 </div>
             </aside>
 
-            <main className="flex-1 p-8 overflow-auto">
+            <main className="flex-1 p-8 overflow-auto print:p-0 print:overflow-visible print:block print:w-full">
                 <Outlet />
             </main>
         </div>

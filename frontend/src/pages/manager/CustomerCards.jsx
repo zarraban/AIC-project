@@ -22,8 +22,8 @@ export default function CustomerCards() {
     const [data, setData] = useState([]);
     const [loading, setLoading] = useState(true);
 
-    const [search, setSearch] = useState(''); // Пошук за прізвищем
-    const [percentFilter, setPercentFilter] = useState('all'); // Фільтр за відсотком (Вимога №12)
+    const [search, setSearch] = useState('');
+    const [percentFilter, setPercentFilter] = useState('all');
 
     const [modal, setModal] = useState({ open: false, mode: 'add', row: null });
     const [form, setForm] = useState(EMPTY);
@@ -117,9 +117,9 @@ export default function CustomerCards() {
     const uniquePercents = [...new Set(data.map(item => item.percent))].sort((a, b) => a - b);
 
     const filtered = data
-        .filter(c => c.cust_surname.toLowerCase().includes(search.toLowerCase())) // Пошук за прізвищем
-        .filter(c => percentFilter === 'all' || c.percent === Number(percentFilter)) // Фільтр за відсотком (ТЗ п.12)
-        .sort((a, b) => a.cust_surname.localeCompare(b.cust_surname, 'uk')); // Сортування за прізвищем (ТЗ п.7)
+        .filter(c => c.cust_surname.toLowerCase().includes(search.toLowerCase()))
+        .filter(c => percentFilter === 'all' || c.percent === Number(percentFilter))
+        .sort((a, b) => a.cust_surname.localeCompare(b.cust_surname, 'uk'));
 
     const columns = [
         { key: 'card_number', label: 'Номер карти' },
@@ -132,7 +132,8 @@ export default function CustomerCards() {
     return (
         <div>
             <div className="flex items-center justify-between mb-6 print:hidden">
-                <h1 className="text-2xl font-bold text-gray-900">Постійні клієнти</h1>
+                <h1 className="text-2xl font-bold text-gray-900">Постійні клієнти
+                </h1>
                 <div className="flex gap-3">
                     <button onClick={() => window.print()}
                             className="px-4 py-2 text-sm font-bold border border-gray-300 rounded-md hover:bg-gray-50 transition-colors">
@@ -174,7 +175,7 @@ export default function CustomerCards() {
                 <h1 className="text-2xl font-bold">Міні-супермаркет ZLAGODA</h1>
                 <h2 className="text-lg">
                     Звіт: Постійні клієнти
-                    {percentFilter !== 'all' ? ` (Знижка ${percentFilter}%)` : ' (Всі)'}
+                    {percentFilter !== 'all' ? ` (Знижка ${percentFilter}%)` : ' (Усі знижки)'}
                 </h2>
                 <p className="text-sm text-gray-500">{new Date().toLocaleDateString('uk-UA')}</p>
             </div>

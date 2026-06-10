@@ -12,6 +12,7 @@ import ProductsCategories from "./pages/manager/ProductsCategories.jsx";
 import ProductsInfo from "./pages/manager/ProductsInfo.jsx";
 import ProductsStore from "./pages/manager/ProductsStore.jsx";
 import CustomerCards from "./pages/manager/CustomerCards.jsx";
+import Receipts from "./pages/manager/Receipts.jsx";
 
 function ProtectedRoute({ allowedRole, children }) {
     const { user } = useAuth();
@@ -60,6 +61,7 @@ function App() {
                         <Route path="products-info" element={<ProductsInfo />} />
                         <Route path="products-store" element={<ProductsStore />} />
                         <Route path="customer-cards" element={<CustomerCards />} />
+                        <Route path="receipts" element={<Receipts />} />
                     </Route>
 
                     <Route
