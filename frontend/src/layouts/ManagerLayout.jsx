@@ -40,6 +40,9 @@ export default function ManagerLayout() {
                         <NavLink to="/manager/receipts" className={linkClass}>
                             🧾 Чеки
                         </NavLink>
+                        <NavLink to="/manager/reports" className={linkClass}>
+                            📊 Аналітичні звіти
+                        </NavLink>
 
                     </nav>
                 </div>
