@@ -78,7 +78,7 @@ async def get_cashiers(
 ):
     async with db.cursor() as cursor:
         await cursor.execute(
-            """SELECT id_employee, empl_surname, empl_name, empl_patronymic
+            """SELECT id_employee, empl_surname, empl_name, empl_patronymic, salary, phone_number
                FROM "Employee" WHERE empl_role = 'Cashier'
                ORDER BY empl_surname"""
         )
