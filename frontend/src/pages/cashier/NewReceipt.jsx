@@ -222,67 +222,67 @@ export default function NewReceipt() {
                 <div className="flex-1 overflow-y-auto p-0">
                     <table className="w-full text-left border-collapse">
                         <thead className="bg-gray-100 sticky top-0">
-                            <tr>
-                                <th className="p-4 text-xs font-bold text-gray-700 uppercase">UPC</th>
-                                <th className="p-4 text-xs font-bold text-gray-700 uppercase">Назва</th>
-                                <th className="p-4 text-xs font-bold text-gray-700 uppercase text-center">К-сть</th>
-                                <th className="p-4 text-xs font-bold text-gray-700 uppercase text-right">Ціна</th>
-                                <th className="p-4 text-xs font-bold text-gray-700 uppercase text-right">Сума</th>
-                                <th className="p-4"></th>
-                            </tr>
+                        <tr>
+                            <th className="p-4 text-xs font-bold text-gray-700 uppercase">UPC</th>
+                            <th className="p-4 text-xs font-bold text-gray-700 uppercase">Назва</th>
+                            <th className="p-4 text-xs font-bold text-gray-700 uppercase text-center">К-сть</th>
+                            <th className="p-4 text-xs font-bold text-gray-700 uppercase text-right">Ціна</th>
+                            <th className="p-4 text-xs font-bold text-gray-700 uppercase text-right">Сума</th>
+                            <th className="p-4"></th>
+                        </tr>
                         </thead>
                         <tbody>
-                            {cart.length === 0 ? (
-                                <tr>
-                                    <td colSpan="6" className="p-10 text-center text-gray-400 text-lg">Чек порожній</td>
+                        {cart.length === 0 ? (
+                            <tr>
+                                <td colSpan="6" className="p-10 text-center text-gray-400 text-lg">Чек порожній</td>
+                            </tr>
+                        ) : (
+                            cart.map((item, idx) => (
+                                <tr key={idx} className="border-b border-gray-100 hover:bg-gray-50">
+                                    <td className="p-4 text-sm font-mono text-gray-500">{item.upc}</td>
+                                    <td className="p-4 text-sm font-bold text-gray-800">
+                                        {item.product_name}
+                                        {item.promotional_product && <span className="ml-2 px-2 py-0.5 bg-red-100 text-red-700 text-xs rounded-full">Акція</span>}
+                                    </td>
+                                    <td className="p-4 text-sm text-center font-bold">{item.quantity}</td>
+                                    <td className="p-4 text-sm text-right">{item.selling_price.toFixed(2)}</td>
+                                    <td className="p-4 text-sm text-right font-bold text-blue-800">{(item.selling_price * item.quantity).toFixed(2)}</td>
+                                    <td className="p-4 text-right">
+                                        <button onClick={() => handleRemoveFromCart(item.upc)} className="text-red-500 hover:text-red-700 font-bold px-2 text-xl">×</button>
+                                    </td>
                                 </tr>
-                            ) : (
-                                cart.map((item, idx) => (
-                                    <tr key={idx} className="border-b border-gray-100 hover:bg-gray-50">
-                                        <td className="p-4 text-sm font-mono text-gray-500">{item.upc}</td>
-                                        <td className="p-4 text-sm font-bold text-gray-800">
-                                            {item.product_name}
-                                            {item.promotional_product && <span className="ml-2 px-2 py-0.5 bg-red-100 text-red-700 text-xs rounded-full">Акція</span>}
-                                        </td>
-                                        <td className="p-4 text-sm text-center font-bold">{item.quantity}</td>
-                                        <td className="p-4 text-sm text-right">{item.selling_price.toFixed(2)}</td>
-                                        <td className="p-4 text-sm text-right font-bold text-blue-800">{(item.selling_price * item.quantity).toFixed(2)}</td>
-                                        <td className="p-4 text-right">
-                                            <button onClick={() => handleRemoveFromCart(item.upc)} className="text-red-500 hover:text-red-700 font-bold px-2 text-xl">×</button>
-                                        </td>
-                                    </tr>
-                                ))
-                            )}
+                            ))
+                        )}
                         </tbody>
                     </table>
                 </div>
 
-                <div className="bg-gray-800 text-white p-6">
-                    <div className="flex justify-between items-center mb-2 text-gray-300">
+                <div className="bg-gray-800 text-white p-4">
+                    <div className="flex justify-between items-center mb-1 text-gray-300">
                         <span>Сума по товарах:</span>
-                        <span className="text-xl">{subtotal.toFixed(2)} грн</span>
+                        <span className="text-lg">{subtotal.toFixed(2)} грн</span>
                     </div>
                     {appliedCard && (
-                        <div className="flex justify-between items-center mb-2 text-green-400">
+                        <div className="flex justify-between items-center mb-1 text-green-400">
                             <span>Знижка по карті ({appliedCard.percent}%):</span>
-                            <span className="text-xl">- {discountAmount.toFixed(2)} грн</span>
+                            <span className="text-lg">- {discountAmount.toFixed(2)} грн</span>
                         </div>
                     )}
-                    <div className="border-t border-gray-600 my-4"></div>
-                    <div className="flex justify-between items-end mb-6">
+                    <div className="border-t border-gray-600 my-3"></div>
+                    <div className="flex justify-between items-end mb-4">
                         <div>
-                            <p className="text-gray-400 text-sm">ПДВ (прев'ю): {vatPreview.toFixed(2)} грн</p>
-                            <h3 className="text-2xl font-bold mt-1">До сплати:</h3>
+                            <p className="text-gray-400 text-sm">ПДВgit : {vatPreview.toFixed(2)} грн</p>
+                            <h3 className="text-xl font-bold mt-1">До сплати:</h3>
                         </div>
-                        <div className="text-5xl font-black text-green-400">
-                            {totalToPay.toFixed(2)} <span className="text-2xl font-bold text-gray-300">грн</span>
+                        <div className="text-4xl font-black text-green-400">
+                            {totalToPay.toFixed(2)} <span className="text-xl font-bold text-gray-300">грн</span>
                         </div>
                     </div>
 
                     <button
                         onClick={handleSubmitReceipt}
                         disabled={cart.length === 0 || processing}
-                        className="w-full bg-green-500 hover:bg-green-600 disabled:bg-gray-600 text-white text-2xl font-black py-4 rounded-lg shadow-lg transition-colors"
+                        className="w-full bg-green-500 hover:bg-green-600 disabled:bg-gray-600 text-white text-xl font-bold py-3 rounded-lg shadow transition-colors"
                     >
                         {processing ? 'Обробка...' : 'ДРУКУВАТИ ЧЕК'}
                     </button>
