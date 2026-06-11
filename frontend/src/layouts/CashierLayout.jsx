@@ -25,7 +25,7 @@ export default function CashierLayout() {
                         <NavLink to="/cashier/new-receipt" className={linkClass}>
                             🧾 Новий чек
                         </NavLink>
-                        <NavLink to="/cashier/products" className={linkClass}>
+                        <NavLink to="/cashier/products-store" className={linkClass}>
                             🔍 Пошук товарів
                         </NavLink>
                     </nav>

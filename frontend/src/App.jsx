@@ -4,16 +4,22 @@ import { BrowserRouter as Router, Routes, Route, Navigate } from 'react-router-d
 import { AuthProvider, useAuth } from './context/AuthContext';
 
 import Login from './pages/Login';
+
 import ManagerLayout from './layouts/ManagerLayout';
 import CashierLayout from './layouts/CashierLayout';
 
+// Manager
 import Employees from './pages/manager/Employees';
 import ProductsCategories from "./pages/manager/ProductsCategories.jsx";
 import ProductsInfo from "./pages/manager/ProductsInfo.jsx";
-import ProductsStore from "./pages/manager/ProductsStore.jsx";
+import ProductsStoreMgr from "./pages/manager/ProductsStore.jsx";
 import CustomerCards from "./pages/manager/CustomerCards.jsx";
-import Receipts from "./pages/manager/Receipts.jsx";
+import ReceiptsMgr from "./pages/manager/Receipts.jsx";
 import Reports from "./pages/manager/Reports.jsx";
+
+// Cashier
+import NewReceipt from "./pages/cashier/NewReceipt.jsx";
+import ProductsStoreCsh from "./pages/cashier/ProductsStore.jsx";
 
 function ProtectedRoute({ allowedRole, children }) {
     const { user } = useAuth();
@@ -36,7 +42,7 @@ function RootRedirect() {
         return <Navigate to="/manager/employees" replace />;
     }
     if (user.role === 'cashier') {
-        return <Navigate to="/cashier/categories" replace />;
+        return <Navigate to="/cashier/new-receipt" replace />;
     }
     return <Navigate to="/login" replace />;
 }
@@ -60,20 +66,22 @@ function App() {
                         <Route path="employees" element={<Employees />} />
                         <Route path="products-categories" element={<ProductsCategories />} />
                         <Route path="products-info" element={<ProductsInfo />} />
-                        <Route path="products-store" element={<ProductsStore />} />
+                        <Route path="products-store" element={<ProductsStoreMgr />} />
                         <Route path="customer-cards" element={<CustomerCards />} />
-                        <Route path="receipts" element={<Receipts />} />
+                        <Route path="receipts" element={<ReceiptsMgr />} />
                         <Route path="reports" element={<Reports />} />
                     </Route>
 
                     <Route
-                        path="/cashier/*"
+                        path="/cashier"
                         element={
                             <ProtectedRoute allowedRole="cashier">
                                 <CashierLayout />
                             </ProtectedRoute>
                         }
                     >
+                        <Route path="new-receipt" element={<NewReceipt />} />
+                        <Route path="products-store" element={<ProductsStoreCsh />} />
 
                     </Route>
 
