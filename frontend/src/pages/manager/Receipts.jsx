@@ -202,43 +202,84 @@ export default function Receipts() {
                 Кількість чеків у звіті: {filtered.length}
             </div>
 
-            <Modal isOpen={detailsModal.open} onClose={() => setDetailsModal({ open: false, receipt: null, items: [], loading: false })}
-                   title={`Деталі чека №${detailsModal.receipt?.receipt_number}`}>
-
+            <Modal
+                isOpen={detailsModal.open}
+                onClose={() => setDetailsModal({ open: false, receipt: null, items: [], loading: false })}
+                title={`Деталі чека №${detailsModal.receipt?.receipt_number}`}
+                hideSubmit={true}
+            >
                 {detailsModal.loading ? (
-                    <p className="text-center">Завантаження складу чека...</p>
+                    <p className="text-center p-4">Завантаження складу чека...</p>
                 ) : (
                     <div className="flex flex-col gap-4">
-                        <div className="grid grid-cols-2 gap-2 text-sm bg-gray-50 p-3 rounded">
-                            <p><span className="font-bold">Дата:</span> {new Date(detailsModal.receipt?.print_date).toLocaleString('uk-UA')}</p>
-                            <p><span className="font-bold">Касир:</span> {detailsModal.receipt?.id_employee}</p>
-                            <p><span className="font-bold">Карта клієнта:</span> {detailsModal.receipt?.card_number || 'Не застосована'}</p>
-                            <p className="font-bold text-green-700">Всього: {Number(detailsModal.receipt?.sum_total).toFixed(2)} грн</p>
+                        <div className="grid grid-cols-2 gap-2 text-sm bg-gray-50 p-4 rounded-lg border border-gray-200">
+                            <p><span className="font-bold text-gray-700">Дата:</span> {new Date(detailsModal.receipt?.print_date).toLocaleString('uk-UA')}</p>
+                            <p>
+                                <span className="font-bold text-gray-700">Касир:</span>{' '}
+                                {cashiers.find(c => c.id_employee === detailsModal.receipt?.id_employee)
+                                    ? `${cashiers.find(c => c.id_employee === detailsModal.receipt?.id_employee).empl_surname} ${cashiers.find(c => c.id_employee === detailsModal.receipt?.id_employee).empl_name[0]}.`
+                                    : detailsModal.receipt?.id_employee}
+                            </p>
+                            <p><span className="font-bold text-gray-700">Карта клієнта:</span> {detailsModal.receipt?.card_number || 'Не застосована'}</p>
+                            <p><span className="font-bold text-gray-700">ПДВ:</span> {Number(detailsModal.receipt?.vat).toFixed(2)} грн</p>
                         </div>
 
                         <table className="w-full text-sm text-left border-collapse mt-2">
                             <thead>
                             <tr className="bg-gray-200">
-                                <th className="p-2 border">UPC товару</th>
-                                <th className="p-2 border">К-сть</th>
-                                <th className="p-2 border">Ціна (шт)</th>
+                                <th className="p-2 border border-gray-300">UPC товару</th>
+                                <th className="p-2 border border-gray-300 text-center">К-сть</th>
+                                <th className="p-2 border border-gray-300 text-right">Ціна (шт)</th>
+                                <th className="p-2 border border-gray-300 text-right">Сума</th>
                             </tr>
                             </thead>
                             <tbody>
                             {detailsModal.items.length > 0 ? (
                                 detailsModal.items.map((item, idx) => (
-                                    <tr key={idx} className="border-b">
-                                        {/* Поля нижче залежать від моделі бекенду Sale */}
-                                        <td className="p-2 border">{item.UPC || item.upc}</td>
-                                        <td className="p-2 border">{item.product_number} шт</td>
-                                        <td className="p-2 border">{Number(item.selling_price).toFixed(2)} грн</td>
+                                    <tr key={idx} className="border-b border-gray-200">
+                                        <td className="p-2 border border-gray-300 font-mono text-gray-600">{item.UPC || item.upc}</td>
+                                        <td className="p-2 border border-gray-300 text-center">{item.product_number} шт</td>
+                                        <td className="p-2 border border-gray-300 text-right">{Number(item.selling_price).toFixed(2)} грн</td>
+                                        <td className="p-2 border border-gray-300 text-right font-medium">
+                                            {(Number(item.selling_price) * Number(item.product_number)).toFixed(2)} грн
+                                        </td>
                                     </tr>
                                 ))
                             ) : (
-                                <tr><td colSpan="3" className="p-2 text-center text-gray-500">Товарів не знайдено</td></tr>
+                                <tr><td colSpan="4" className="p-4 text-center text-gray-500">Товарів не знайдено</td></tr>
                             )}
                             </tbody>
                         </table>
+
+                        {(() => {
+                            const subtotal = detailsModal.items.reduce((sum, item) => sum + (Number(item.selling_price) * Number(item.product_number)), 0);
+                            const total = Number(detailsModal.receipt?.sum_total);
+                            const discount = subtotal - total;
+
+                            return (
+                                <div className="flex flex-col items-end gap-1 mt-2 text-sm bg-white p-4 rounded-lg border border-gray-200">
+                                    <div className="flex justify-between w-64 text-gray-600">
+                                        <span>Сума по товарах:</span>
+                                        <span>{subtotal.toFixed(2)} грн</span>
+                                    </div>
+
+                                    {discount > 0.01 && (
+                                        <div className="flex justify-between w-64 text-green-600 font-medium">
+                                            <span>Знижка клієнта:</span>
+                                            <span>- {discount.toFixed(2)} грн</span>
+                                        </div>
+                                    )}
+
+                                    <div className="w-64 border-t border-gray-300 my-1"></div>
+
+                                    <div className="flex justify-between w-64 font-bold text-lg text-gray-900">
+                                        <span>Всього до сплати:</span>
+                                        <span>{total.toFixed(2)} грн</span>
+                                    </div>
+                                </div>
+                            );
+                        })()}
+
                     </div>
                 )}
             </Modal>

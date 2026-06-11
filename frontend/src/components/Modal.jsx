@@ -1,6 +1,6 @@
 import React from 'react';
 
-function Modal({ isOpen, onClose, title, children, onSubmit, submitLabel = 'Зберегти', loading = false }) {
+function Modal({ isOpen, onClose, title, children, onSubmit, submitLabel = 'Зберегти', loading = false, hideSubmit }) {
     if (!isOpen) return null;
 
     return (
@@ -12,6 +12,7 @@ function Modal({ isOpen, onClose, title, children, onSubmit, submitLabel = 'Зб
                     <button onClick={onClose} className="text-gray-400 hover:text-gray-600 text-2xl leading-none">&times;</button>
                 </div>
                 <div className="px-6 py-5">{children}</div>
+                {!hideSubmit && (
                 <div className="px-6 py-4 border-t border-gray-100 flex justify-end gap-3">
                     <button onClick={onClose} type="button"
                             className="px-5 py-2 text-sm font-bold text-gray-600 bg-gray-100 rounded-md hover:bg-gray-200 transition-colors">
@@ -22,6 +23,7 @@ function Modal({ isOpen, onClose, title, children, onSubmit, submitLabel = 'Зб
                         {loading ? 'Збереження...' : submitLabel}
                     </button>
                 </div>
+                )}
             </div>
         </div>
     );
