@@ -46,39 +46,43 @@ export default function Login() {
 
     return (
         <div className="flex items-center justify-center min-h-screen bg-gray-100">
-            <div className="p-8 bg-white rounded-lg shadow-md w-96">
-                <h1 className="text-2xl font-bold text-center text-green-700 mb-6">
+            <div className="p-8 bg-white rounded-lg shadow-md w-96 border border-gray-200">
+                <h1 className="text-2xl font-black text-center text-slate-800 mb-2">
                     Міні-супермаркет ZLAGODA
                 </h1>
-                <p className="text-gray-600 text-center mb-6">Вхід у систему</p>
+                <p className="text-gray-500 text-center mb-8 font-medium">Вхід у систему</p>
 
-                <form onSubmit={handleLogin} className="space-y-4">
+                <form onSubmit={handleLogin} className="space-y-5">
                     <div>
-                        <label className="block text-gray-700 mb-1 text-sm font-medium">ID Працівника</label>
+                        <label className="block text-slate-700 mb-1.5 text-xs font-bold uppercase tracking-wider">
+                            ID Працівника
+                        </label>
                         <input
                             type="text"
                             value={id}
                             onChange={(e) => setId(e.target.value)}
-                            className="w-full border border-gray-300 px-3 py-2 rounded focus:outline-none focus:ring-2 focus:ring-green-600"
+                            className="w-full border border-gray-300 px-4 py-2.5 rounded-md focus:outline-none focus:ring-2 focus:ring-slate-600 transition-shadow"
                             required
                         />
                     </div>
 
                     <div>
-                        <label className="block text-gray-700 mb-1 text-sm font-medium">Пароль</label>
+                        <label className="block text-slate-700 mb-1.5 text-xs font-bold uppercase tracking-wider">
+                            Пароль
+                        </label>
                         <div className="relative">
                             <input
                                 type={showPassword ? "text" : "password"}
                                 value={password}
                                 onChange={(e) => setPassword(e.target.value)}
-                                className="w-full border border-gray-300 px-3 py-2 rounded focus:outline-none focus:ring-2 focus:ring-green-600 pr-10"
+                                className="w-full border border-gray-300 px-4 py-2.5 rounded-md focus:outline-none focus:ring-2 focus:ring-slate-600 pr-10 transition-shadow"
                                 required
                             />
 
                             <button
                                 type="button"
                                 onClick={() => setShowPassword(!showPassword)}
-                                className="absolute inset-y-0 right-0 flex items-center pr-3 text-gray-500 hover:text-green-700 focus:outline-none"
+                                className="absolute inset-y-0 right-0 flex items-center pr-3 text-gray-400 hover:text-slate-800 focus:outline-none transition-colors"
                             >
                                 {showPassword ? (
                                     <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -96,7 +100,7 @@ export default function Login() {
 
                     <button
                         type="submit"
-                        className="w-full bg-green-600 text-white font-semibold py-2 px-4 rounded hover:bg-green-700 transition mt-2"
+                        className="w-full bg-slate-800 text-white font-bold py-3 px-4 rounded-md hover:bg-slate-900 transition-colors shadow-sm mt-2"
                     >
                         Увійти
                     </button>

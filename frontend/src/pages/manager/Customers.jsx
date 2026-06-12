@@ -18,7 +18,7 @@ const EMPTY = {
 const inputCls = "w-full px-4 py-2 border border-gray-300 rounded-md text-sm focus:outline-none focus:ring-1 focus:ring-green-600 disabled:bg-gray-50 disabled:text-gray-400";
 const labelCls = "block text-xs font-bold text-gray-700 uppercase tracking-wider mb-1.5";
 
-export default function CustomerCards() {
+export default function Customers() {
     const [data, setData] = useState([]);
     const [loading, setLoading] = useState(true);
 
@@ -146,7 +146,7 @@ export default function CustomerCards() {
                     </button>
                     <button onClick={openAdd}
                             className="px-4 py-2 text-sm font-bold text-white bg-green-600 rounded-md hover:bg-green-700 transition-colors">
-                        + Додати клієнта
+                        + Додати
                     </button>
                 </div>
             </div>

@@ -130,7 +130,7 @@ export default function Customers() {
                 <h1 className="text-2xl font-bold text-gray-900">Постійні клієнти</h1>
                 <button onClick={openAdd}
                         className="px-4 py-2 text-sm font-bold text-white bg-blue-600 rounded-md hover:bg-blue-700 transition-colors">
-                    + Додати клієнта
+                    + Додати
                 </button>
             </div>
 

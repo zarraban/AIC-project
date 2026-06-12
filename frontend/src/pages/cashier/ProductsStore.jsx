@@ -84,7 +84,7 @@ export default function ProductsStoreCsh() {
     return (
         <div>
             <div className="flex items-center justify-between mb-6 print:hidden">
-                <h1 className="text-2xl font-bold text-gray-900">Пошук товарів</h1>
+                <h1 className="text-2xl font-bold text-gray-900">Товари в магазині</h1>
                 <button onClick={() => window.print()}
                         className="px-4 py-2 text-sm font-bold border border-gray-300 rounded-md hover:bg-gray-50 transition-colors">
                     🖨 Друк

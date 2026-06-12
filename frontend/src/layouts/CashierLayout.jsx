@@ -38,34 +38,35 @@ export default function CashierLayout() {
         }`;
 
     return (
-        <div className="flex min-h-screen bg-gray-50 print:bg-white print:block">
-            <aside className="w-64 bg-blue-800 text-white flex flex-col shadow-lg print:hidden">
+        <div className="flex h-screen bg-gray-50 print:bg-white print:block">
+            <aside className="w-64 bg-blue-800 text-white flex flex-col z-10 shadow-[4px_0_24px_rgba(0,0,0,0.50)] print:hidden">
                 <div className="p-4">
-                    <h2 className="text-xl font-bold mb-8 text-center">ZLAGODA Cashier</h2>
+                    <h2 className="text-xl font-bold mb-8 mt-4 text-center">ZLAGODA Cashier</h2>
                     <nav className="space-y-2">
                         <NavLink to="/cashier/new-receipt" className={linkClass}>
                             🧾 Новий чек
                         </NavLink>
+                        <NavLink to="/cashier/customers" className={linkClass}>
+                            👨🏻‍💼 Постійні клієнти
+                        </NavLink>
                         <NavLink to="/cashier/products-info" className={linkClass}>
-                            🗂️ Категорії товарів
+                            📚 Довідник товарів
                         </NavLink>
                         <NavLink to="/cashier/products-store" className={linkClass}>
                             🛍️ Товари в магазині
                         </NavLink>
-                        <NavLink to="/cashier/customers" className={linkClass}>
-                            👨🏻‍💼 Постійні клієнти
-                        </NavLink>
-                        <NavLink to="/cashier/receipts" className={linkClass}>
+                        <NavLink to="/cashier/my-receipts" className={linkClass}>
                             📑 Мої чеки
                         </NavLink>
 
                     </nav>
                 </div>
 
-                <div className="mt-auto p-4 border-t border-blue-500 space-y-2">
+                <div className="mt-auto p-4 relative space-y-2">
+                    <div className="absolute top-0 left-4 right-4 h-px bg-gradient-to-r from-transparent via-blue-300/50 to-transparent"></div>
                     <button
                         onClick={openProfile}
-                        className="w-full text-left p-3 hover:bg-blue-700 rounded transition text-white font-medium"
+                        className="w-full text-left p-3 hover:bg-blue-700 rounded transition text-white font-medium mt-2"
                     >
                         🪪 Мій профіль
                     </button>

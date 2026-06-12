@@ -17,7 +17,7 @@ async def login(
             """SELECT ea.id_employee, ea.password_hash, e.empl_name, e.empl_surname, e.empl_role
                FROM "Employee_Auth" ea
                JOIN "Employee" e ON e.id_employee = ea.id_employee
-               WHERE ea.login = %s""",
+               WHERE LOWER(login) = LOWER(%s)""",
             (form_data.username,)
         )
         user = await cursor.fetchone()

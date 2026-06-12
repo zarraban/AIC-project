@@ -64,7 +64,7 @@ export default function Reports() {
             <div className="flex items-center justify-between mb-6 print:hidden">
                 <h1 className="text-2xl font-bold text-gray-900">Аналітичні звіти</h1>
                 <button onClick={() => window.print()} className="px-4 py-2 text-sm font-bold border border-gray-300 rounded-md hover:bg-gray-50">
-                    🖨 Друк звіту
+                    🖨 Друк
                 </button>
             </div>
 
@@ -123,7 +123,7 @@ export default function Reports() {
 
                 <div className="flex items-end">
                     <button onClick={generateReport} disabled={loading} className={`${btnCls} w-full h-[38px]`}>
-                        {loading ? 'Генерація...' : '📊 Згенерувати'}
+                        {loading ? 'Генерація...' : 'Згенерувати'}
                     </button>
                 </div>
             </div>

@@ -165,7 +165,7 @@ export default function NewReceipt() {
         <div className="flex flex-col lg:flex-row gap-6 h-full">
             <div className="w-full lg:w-1/3 flex flex-col gap-6">
                 <div className="bg-white p-6 rounded-lg shadow-sm border border-gray-200">
-                    <h2 className="text-lg font-bold text-blue-900 mb-4">🛒 Додати товар</h2>
+                    <h2 className="text-lg font-bold text-blue-900 mb-4">Додати товар</h2>
                     <form onSubmit={handleAddToCart} className="flex flex-col gap-4">
                         <div>
                             <label className="block text-xs font-bold text-gray-700 uppercase mb-1">Штрих-код (UPC)</label>
@@ -194,7 +194,7 @@ export default function NewReceipt() {
                 </div>
 
                 <div className="bg-white p-6 rounded-lg shadow-sm border border-gray-200">
-                    <h2 className="text-lg font-bold text-blue-900 mb-4">💳 Карта клієнта</h2>
+                    <h2 className="text-lg font-bold text-blue-900 mb-4">Карта клієнта</h2>
                     <div className="flex gap-2">
                         <input
                             type="text"
@@ -271,7 +271,7 @@ export default function NewReceipt() {
                     <div className="border-t border-gray-600 my-3"></div>
                     <div className="flex justify-between items-end mb-4">
                         <div>
-                            <p className="text-gray-400 text-sm">ПДВgit : {vatPreview.toFixed(2)} грн</p>
+                            <p className="text-gray-400 text-sm">ПДВ: {vatPreview.toFixed(2)} грн</p>
                             <h3 className="text-xl font-bold mt-1">До сплати:</h3>
                         </div>
                         <div className="text-4xl font-black text-green-400">

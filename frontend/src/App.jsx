@@ -13,15 +13,16 @@ import Employees from './pages/manager/Employees';
 import ProductsCategories from "./pages/manager/ProductsCategories.jsx";
 import ProductsInfoMgr from "./pages/manager/ProductsInfo.jsx";
 import ProductsStoreMgr from "./pages/manager/ProductsStore.jsx";
-import CustomerCards from "./pages/manager/CustomerCards.jsx";
+import CustomersMgr from "./pages/manager/Customers.jsx";
 import ReceiptsMgr from "./pages/manager/Receipts.jsx";
 import Reports from "./pages/manager/Reports.jsx";
 
 // Cashier
 import NewReceipt from "./pages/cashier/NewReceipt.jsx";
-import ProductsStoreCsh from "./pages/cashier/ProductsStore.jsx";
-import Customers from "./pages/cashier/Customers.jsx";
+import CustomersCsh from "./pages/cashier/Customers.jsx";
 import ProductsInfoCsh from "./pages/cashier/ProductsInfo.jsx";
+import ProductsStoreCsh from "./pages/cashier/ProductsStore.jsx";
+import MyReceipts from "./pages/cashier/MyReceipts.jsx";
 
 function ProtectedRoute({ allowedRole, children }) {
     const { user } = useAuth();
@@ -69,7 +70,7 @@ function App() {
                         <Route path="products-categories" element={<ProductsCategories />} />
                         <Route path="products-info" element={<ProductsInfoMgr />} />
                         <Route path="products-store" element={<ProductsStoreMgr />} />
-                        <Route path="customer-cards" element={<CustomerCards />} />
+                        <Route path="customers" element={<CustomersMgr />} />
                         <Route path="receipts" element={<ReceiptsMgr />} />
                         <Route path="reports" element={<Reports />} />
                     </Route>
@@ -83,9 +84,10 @@ function App() {
                         }
                     >
                         <Route path="new-receipt" element={<NewReceipt />} />
-                        <Route path="products-store" element={<ProductsStoreCsh />} />
-                        <Route path="customers" element={<Customers />} />
+                        <Route path="customers" element={<CustomersCsh />} />
                         <Route path="products-info" element={<ProductsInfoCsh />} />
+                        <Route path="products-store" element={<ProductsStoreCsh />} />
+                        <Route path="my-receipts" element={<MyReceipts />} />
 
                     </Route>
 
