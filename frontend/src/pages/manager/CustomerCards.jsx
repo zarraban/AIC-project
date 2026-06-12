@@ -84,6 +84,11 @@ export default function CustomerCards() {
             return;
         }
 
+        if (parseInt(form.percent, 10) < 0) {
+            setError('Помилка: Відсоток знижки не може бути від\'ємним');
+            return;
+        }
+
         const phoneRegex = /^\+380\d{9}$/;
         if (!phoneRegex.test(form.phone_number)) {
             setError('Введіть номер телефону в форматі +380XXXXXXXXX');

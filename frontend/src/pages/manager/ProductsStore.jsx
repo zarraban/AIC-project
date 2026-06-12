@@ -36,7 +36,7 @@ export default function StoreProducts() {
             setData(storeRes.data);
             setBaseProducts(baseRes.data);
         } catch (err) {
-            console.error("ДЕТАЛІ ПОМИЛКИ:", err);
+            console.error(err);
         } finally {
             setLoading(false);
         }
@@ -47,7 +47,7 @@ export default function StoreProducts() {
             try {
                 await loadData();
             } catch (err) {
-                console.error("Помилка при ініціалізації:", err);
+                console.error(err);
             }
         };
 
@@ -81,6 +81,16 @@ export default function StoreProducts() {
             return;
         }
 
+        if (parseFloat(form.selling_price) < 0) {
+            setError('Помилка: Ціна продажу не може бути від\'ємною');
+            return;
+        }
+
+        if (parseInt(form.products_number, 10) < 0) {
+            setError('Помилка: Кількість одиниць не може бути від\'ємною');
+            return;
+        }
+
         setSaving(true); setError('');
         try {
             const payload = {
@@ -88,7 +98,7 @@ export default function StoreProducts() {
                 id_product: Number(form.id_product),
                 selling_price: parseFloat(form.selling_price),
                 products_number: parseInt(form.products_number, 10),
-                upc_prom: form.upc_prom.trim() === '' ? null : form.upc_prom // Якщо пусте, відправляємо null
+                upc_prom: form.upc_prom.trim() === '' ? null : form.upc_prom
             };
 
             modal.mode === 'add'
@@ -138,7 +148,6 @@ export default function StoreProducts() {
         { key: 'products_number', label: 'Кількість' },
         { key: 'promotional_product', label: 'Акція', render: (val) => val ? <span className="text-blue-600 font-bold">Так</span> : 'Ні' },
     ];
-
 
     if (search.trim() !== '') {
         columns.splice(2, 0, { key: 'characteristics', label: 'Характеристики' });
@@ -194,7 +203,7 @@ export default function StoreProducts() {
 
             <div className="hidden print:block mb-6 text-center border-b pb-4">
                 <h1 className="text-2xl font-bold">Міні-супермаркет ZLAGODA</h1>
-                <h2 className="text-lg">Звіт: Товари в магазиніа</h2>
+                <h2 className="text-lg">Звіт: Товари в магазині</h2>
                 <p className="text-sm text-gray-500">{new Date().toLocaleDateString('uk-UA')}</p>
             </div>
 
@@ -247,7 +256,6 @@ export default function StoreProducts() {
                             <input
                                 type="number"
                                 step="0.01"
-                                min="0"
                                 value={form.selling_price}
                                 onChange={(e) => setForm({ ...form, selling_price: e.target.value })}
                                 className={inputCls}
@@ -257,7 +265,6 @@ export default function StoreProducts() {
                             <label className={labelCls}>Кількість одиниць *</label>
                             <input
                                 type="number"
-                                min="0"
                                 value={form.products_number}
                                 onChange={(e) => setForm({ ...form, products_number: e.target.value })}
                                 className={inputCls}
