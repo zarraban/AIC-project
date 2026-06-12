@@ -86,8 +86,21 @@ async def get_cashiers(
 
 
 @router.get("/me")
-async def get_me(current_user: dict = Depends(get_current_user)):
-    return current_user
+async def get_my_profile(
+    current_user: dict = Depends(get_current_user),
+    db: psycopg.AsyncConnection = Depends(get_db)
+):
+    async with db.cursor() as cursor:
+        await cursor.execute(
+            """SELECT * FROM "Employee" WHERE id_employee = %s""",
+            (current_user["id"],)
+        )
+        employee = await cursor.fetchone()
+
+        if not employee:
+            raise HTTPException(status_code=404, detail="Працівника не знайдено")
+
+        return employee
 
 
 @router.post("/", status_code=201)
