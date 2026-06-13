@@ -3,6 +3,7 @@ import DataTable from '../../components/DataTable';
 import Modal from '../../components/Modal';
 import { getStoreProducts, createStoreProduct, updateStoreProduct, deleteStoreProduct, getStoreProductByUpc } from '../../services/productStoreService';
 import { getProducts } from '../../services/productInfoService';
+import axios from 'axios';
 
 const EMPTY = {
     upc: '',
@@ -28,6 +29,11 @@ export default function StoreProducts() {
     const [form, setForm] = useState(EMPTY);
     const [saving, setSaving] = useState(false);
     const [error, setError] = useState('');
+
+    const [neverBought, setNeverBought] = useState(null);
+    const [neverBoughtUpc, setNeverBoughtUpc] = useState('');
+    const [neverBoughtLoading, setNeverBoughtLoading] = useState(false);
+    const [neverBoughtError, setNeverBoughtError] = useState('');
 
     const loadData = async () => {
         setLoading(true);
@@ -141,6 +147,27 @@ export default function StoreProducts() {
             }
         });
 
+    const loadNeverBought = async (upc) => {
+        const target = upc || neverBoughtUpc;
+        if (!target.trim()) { setNeverBoughtError('Оберіть товар з таблиці або введіть UPC'); return; }
+        setNeverBoughtLoading(true);
+        setNeverBoughtError('');
+        setNeverBoughtUpc(target);
+        try {
+            const token = localStorage.getItem('token');
+            const res = await axios.get(
+                `http://localhost:8000/analytics/smyrnov/customers-never-bought/${target.trim()}`,
+                { headers: { Authorization: `Bearer ${token}` } }
+            );
+            setNeverBought(res.data);
+        } catch {
+            setNeverBoughtError('Помилка завантаження');
+            setNeverBought(null);
+        } finally {
+            setNeverBoughtLoading(false);
+        }
+    };
+
     const columns = [
         { key: 'upc', label: 'UPC (Штрих-код)' },
         { key: 'product_name', label: 'Назва товару' },
@@ -207,10 +234,66 @@ export default function StoreProducts() {
                 <p className="text-sm text-gray-500">{new Date().toLocaleDateString('uk-UA')}</p>
             </div>
 
-            <DataTable columns={columns} data={filtered} loading={loading} onEdit={openEdit} onDelete={handleDelete} />
+            <DataTable
+                columns={columns}
+                data={filtered}
+                loading={loading}
+                onEdit={openEdit}
+                onDelete={handleDelete}
+                onRowClick={(row) => loadNeverBought(row.upc)}
+            />
 
             <div className="hidden print:block mt-6 border-t pt-4 text-sm text-gray-500 text-center">
                 Всього позицій: {filtered.length}
+            </div>
+
+            <div className="mt-8 print:hidden border border-gray-200 rounded-lg bg-white p-6 shadow-sm">
+                <h2 className="text-base font-bold text-gray-800 mb-1">
+                    🔍 Клієнти, які ще не купували цей товар
+                </h2>
+                <p className="text-xs text-gray-400 mb-4">Натисніть на рядок товару в таблиці або введіть UPC вручну</p>
+                <div className="flex gap-3 mb-4">
+                    <input
+                        type="text"
+                        value={neverBoughtUpc}
+                        onChange={(e) => setNeverBoughtUpc(e.target.value)}
+                        placeholder="UPC товару..."
+                        className="flex-1 max-w-xs px-4 py-2 border border-gray-300 rounded-md text-sm focus:outline-none focus:ring-1 focus:ring-green-600"
+                    />
+                    <button
+                        onClick={() => loadNeverBought()}
+                        disabled={neverBoughtLoading}
+                        className="px-4 py-2 text-sm font-bold text-white bg-green-600 rounded-md hover:bg-green-700 transition-colors disabled:bg-gray-400"
+                    >
+                        {neverBoughtLoading ? 'Завантаження...' : 'Знайти'}
+                    </button>
+                </div>
+                {neverBoughtError && (
+                    <div className="mb-3 p-3 bg-red-50 border-l-4 border-red-600 text-red-700 text-sm">{neverBoughtError}</div>
+                )}
+                {neverBought && neverBought.length === 0 && (
+                    <p className="text-sm text-gray-500">Усі клієнти вже купували цей товар</p>
+                )}
+                {neverBought && neverBought.length > 0 && (
+                    <table className="w-full text-sm text-left border border-gray-200 rounded">
+                        <thead className="bg-gray-50 text-xs uppercase font-bold text-gray-600">
+                            <tr>
+                                <th className="p-3">Номер картки</th>
+                                <th className="p-3">Клієнт</th>
+                                <th className="p-3">Телефон</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {neverBought.map((row, i) => (
+                                <tr key={i} className="border-b border-gray-100 hover:bg-gray-50">
+                                    <td className="p-3 font-mono text-xs">{row.card_number}</td>
+                                    <td className="p-3 font-medium">{row.cust_surname} {row.cust_name}</td>
+                                    <td className="p-3 text-gray-500">{row.phone_number}</td>
+                                </tr>
+                            ))}
+                        </tbody>
+                    </table>
+                )}
             </div>
 
             <Modal isOpen={modal.open} onClose={() => setModal({ ...modal, open: false })}

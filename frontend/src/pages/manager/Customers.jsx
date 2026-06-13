@@ -2,6 +2,7 @@ import React, { useState, useEffect } from 'react';
 import DataTable from '../../components/DataTable';
 import Modal from '../../components/Modal';
 import { getCustomerCards, createCustomerCard, updateCustomerCard, deleteCustomerCard } from '../../services/customerCardService';
+import axios from 'axios';
 
 const EMPTY = {
     card_number: '',
@@ -29,6 +30,11 @@ export default function Customers() {
     const [form, setForm] = useState(EMPTY);
     const [saving, setSaving] = useState(false);
     const [error, setError] = useState('');
+
+    const [categoryStats, setCategoryStats] = useState(null);
+    const [categoryStatsCard, setCategoryStatsCard] = useState('');
+    const [categoryStatsLoading, setCategoryStatsLoading] = useState(false);
+    const [categoryStatsError, setCategoryStatsError] = useState('');
 
     useEffect(() => {
         const fetchInitialData = async () => {
@@ -121,6 +127,28 @@ export default function Customers() {
 
     const uniquePercents = [...new Set(data.map(item => item.percent))].sort((a, b) => a - b);
 
+    const loadCategoryStats = async () => {
+        if (!categoryStatsCard.trim()) {
+            setCategoryStatsError('Оберіть або введіть номер картки клієнта');
+            return;
+        }
+        setCategoryStatsLoading(true);
+        setCategoryStatsError('');
+        try {
+            const token = localStorage.getItem('token');
+            const res = await axios.get(
+                `http://localhost:8000/analytics/smyrnov/purchases-by-category/${categoryStatsCard.trim()}`,
+                { headers: { Authorization: `Bearer ${token}` } }
+            );
+            setCategoryStats(res.data);
+        } catch {
+            setCategoryStatsError('Клієнта не знайдено або він ще не робив покупок');
+            setCategoryStats(null);
+        } finally {
+            setCategoryStatsLoading(false);
+        }
+    };
+
     const filtered = data
         .filter(c => c.cust_surname.toLowerCase().includes(search.toLowerCase()))
         .filter(c => percentFilter === 'all' || c.percent === Number(percentFilter))
@@ -189,6 +217,71 @@ export default function Customers() {
 
             <div className="hidden print:block mt-6 border-t pt-4 text-sm text-gray-500 text-center">
                 Кількість клієнтів у списку: {filtered.length}
+            </div>
+
+            <div className="mt-8 print:hidden border border-gray-200 rounded-lg bg-white p-6 shadow-sm">
+                <h2 className="text-base font-bold text-gray-800 mb-4">
+                    📊 Покупки клієнта в розрізі категорій товарів
+                </h2>
+                <div className="flex gap-3 mb-4">
+                    <select
+                        value={categoryStatsCard}
+                        onChange={(e) => setCategoryStatsCard(e.target.value)}
+                        className="flex-1 max-w-xs px-4 py-2 border border-gray-300 rounded-md text-sm focus:outline-none focus:ring-1 focus:ring-green-600"
+                    >
+                        <option value="">Оберіть клієнта...</option>
+                        {data.map(c => (
+                            <option key={c.card_number} value={c.card_number}>
+                                {c.cust_surname} {c.cust_name} ({c.card_number})
+                            </option>
+                        ))}
+                    </select>
+                    <button
+                        onClick={loadCategoryStats}
+                        disabled={categoryStatsLoading}
+                        className="px-4 py-2 text-sm font-bold text-white bg-green-600 rounded-md hover:bg-green-700 transition-colors disabled:bg-gray-400"
+                    >
+                        {categoryStatsLoading ? 'Завантаження...' : 'Показати'}
+                    </button>
+                </div>
+                {categoryStatsError && (
+                    <div className="mb-3 p-3 bg-red-50 border-l-4 border-red-600 text-red-700 text-sm">{categoryStatsError}</div>
+                )}
+                {categoryStats && categoryStats.length === 0 && (
+                    <p className="text-sm text-gray-500">Цей клієнт ще не робив покупок</p>
+                )}
+                {categoryStats && categoryStats.length > 0 && (
+                    <table className="w-full text-sm text-left border border-gray-200 rounded">
+                        <thead className="bg-gray-50 text-xs uppercase font-bold text-gray-600">
+                            <tr>
+                                <th className="p-3">Категорія</th>
+                                <th className="p-3 text-center">Чеків</th>
+                                <th className="p-3 text-center">Одиниць</th>
+                                <th className="p-3 text-right">Сума</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {categoryStats.map((row, i) => (
+                                <tr key={i} className="border-b border-gray-100 hover:bg-gray-50">
+                                    <td className="p-3 font-medium">{row.category_name}</td>
+                                    <td className="p-3 text-center">{row.receipt_count}</td>
+                                    <td className="p-3 text-center">{row.total_qty}</td>
+                                    <td className="p-3 text-right font-bold text-green-700">
+                                        {Number(row.total_sum).toFixed(2)} грн
+                                    </td>
+                                </tr>
+                            ))}
+                        </tbody>
+                        <tfoot className="bg-gray-50 font-bold text-sm">
+                            <tr>
+                                <td className="p-3" colSpan={3}>Разом</td>
+                                <td className="p-3 text-right text-green-700">
+                                    {categoryStats.reduce((acc, r) => acc + Number(r.total_sum), 0).toFixed(2)} грн
+                                </td>
+                            </tr>
+                        </tfoot>
+                    </table>
+                )}
             </div>
 
             <Modal isOpen={modal.open} onClose={() => setModal({ ...modal, open: false })}
