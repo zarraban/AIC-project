@@ -303,7 +303,7 @@ export default function StoreProducts() {
 
       <div className="mt-8 print:hidden border border-gray-200 rounded-lg bg-white p-6 shadow-sm">
         <h2 className="text-base font-bold text-gray-800 mb-1">
-          🔍 Клієнти, які ще не купували цей товар
+          🔍 Клієнти, які вже купували цей товар
         </h2>
         <p className="text-xs text-gray-400 mb-4">Введіть UPC вручну</p>
         <div className="flex gap-3 mb-4">
@@ -329,7 +329,7 @@ export default function StoreProducts() {
         )}
         {neverBought && neverBought.length === 0 && (
           <p className="text-sm text-gray-500">
-            Усі клієнти вже купували цей товар
+            Жоден клієнт ще не купував цей товар
           </p>
         )}
         {neverBought && neverBought.length > 0 && (
