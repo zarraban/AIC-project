@@ -79,8 +79,18 @@ async def create_store_product(
     async with db.cursor() as cursor:
         try:
             await cursor.execute(
+                'SELECT upc FROM "Store_Product" WHERE id_product = %s AND promotional_product = %s',
+                (data.id_product, data.promotional_product)
+            )
+            existing = await cursor.fetchone()
+            if existing and existing["upc"] != data.upc:
+                status_str = "Акційний" if data.promotional_product else "Звичайний"
+                raise HTTPException(status_code=400, detail=f"Увага! {status_str} товар для ID {data.id_product} вже існує з іншим UPC у магазині. Не можна додати його двічі.")
+            await cursor.execute(
                 """INSERT INTO "Store_Product" (upc, upc_prom, id_product, selling_price, products_number, promotional_product)
-                   VALUES (%s, %s, %s, %s, %s, %s)""",
+                   VALUES (%s, %s, %s, %s, %s, %s)
+                   ON CONFLICT (upc) DO UPDATE 
+                   SET products_number = "Store_Product".products_number + EXCLUDED.products_number, selling_price = EXCLUDED.selling_price""",
                 (data.upc, data.upc_prom, data.id_product, data.selling_price, data.products_number, data.promotional_product)
             )
             await db.commit()
@@ -99,6 +109,20 @@ async def update_store_product(
     current_user: dict = Depends(require_manager)
 ):
     async with db.cursor() as cursor:
+        await cursor.execute('SELECT id_product, promotional_product FROM "Store_Product" WHERE upc = %s', (upc,))
+        current_prod = await cursor.fetchone()
+        if not current_prod:
+            raise HTTPException(status_code=404, detail="Товар у магазині не знайдено")
+            
+        if current_prod["promotional_product"] != data.promotional_product:
+            await cursor.execute(
+                'SELECT 1 FROM "Store_Product" WHERE id_product = %s AND promotional_product = %s AND upc != %s',
+                (current_prod["id_product"], data.promotional_product, upc)
+            )
+            if await cursor.fetchone():
+                status_str = "Акційний" if data.promotional_product else "Звичайний"
+                raise HTTPException(status_code=400, detail=f"Увага! {status_str} товар для цього базового ID вже існує у магазині.")
+            
         await cursor.execute(
             """UPDATE "Store_Product" SET upc_prom=%s, selling_price=%s, products_number=%s, promotional_product=%s
                WHERE upc=%s""",

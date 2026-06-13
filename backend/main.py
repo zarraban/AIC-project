@@ -5,16 +5,38 @@ import psycopg
 import uvicorn
 import os
 from dotenv import load_dotenv
-from database import get_db
+import asyncio
+from contextlib import asynccontextmanager
+from database import get_db, get_db_connection
 from routers import auth, categories, products, store_products, employees, \
                     customer_cards, receipts, reports, analytics
 
 load_dotenv()
 
+async def cleanup_old_receipts():
+    while True:
+        try:
+            conn = await get_db_connection()
+            async with conn.cursor() as cursor:
+                await cursor.execute("DELETE FROM \"Receipt\" WHERE print_date < NOW() - INTERVAL '3 years';")
+                await conn.commit()
+            await conn.close()
+            print("Cleanup: Old receipts deleted.")
+        except Exception as e:
+            print(f"Receipt cleanup error: {e}")
+        
+        await asyncio.sleep(86400)
+@asynccontextmanager
+async def lifespan(app: FastAPI):
+    task = asyncio.create_task(cleanup_old_receipts())
+    yield
+    task.cancel()
+
 app = FastAPI(
     title="Zlagoda Supermarket API",
     description="Backend API for Zlagoda Supermarket",
-    version="1.0.0"
+    version="1.0.0",
+    lifespan=lifespan
 )
 
 app.add_middleware(

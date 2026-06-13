@@ -1,5 +1,5 @@
 from fastapi import APIRouter, Depends, HTTPException
-from pydantic import BaseModel
+from pydantic import BaseModel, Field
 from typing import Optional
 from decimal import Decimal
 from datetime import date
@@ -11,7 +11,7 @@ router = APIRouter(prefix="/api/employees", tags=["employees"])
 
 
 class EmployeeCreate(BaseModel):
-    id_employee: str
+    id_employee: str = Field(max_length=10)
     empl_surname: str
     empl_name: str
     empl_patronymic: Optional[str] = None
@@ -24,7 +24,7 @@ class EmployeeCreate(BaseModel):
     street: str
     zip_code: str
     login: str
-    password: str
+    password: str = Field(min_length=5)
 
 
 class EmployeeUpdate(BaseModel):
@@ -42,7 +42,7 @@ class EmployeeUpdate(BaseModel):
 
 
 class PasswordChange(BaseModel):
-    new_password: str
+    new_password: str = Field(min_length=5)
 
 
 @router.get("/")

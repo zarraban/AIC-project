@@ -1,9 +1,21 @@
 @import "tailwindcss";
-
 @media print {
     @page {
         size: A4;
-        margin: 1.5cm;
+        margin: 0;
     }
-    body { -webkit-print-color-adjust: exact; print-color-adjust: exact; }
+    html, body {
+        margin: 0;
+        padding: 0;
+        box-sizing: border-box;
+    }
+    body { 
+        margin: 1.5cm;
+        padding: 1.5cm; /* Use padding instead of margin to prevent overflow */
+        -webkit-print-color-adjust: exact; 
+        print-color-adjust: exact; 
+    }
+    #root, .print\:hidden {
+        min-height: 0 !important;
+    }
 }
