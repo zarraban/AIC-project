@@ -38,7 +38,7 @@ export default function CashierLayout() {
         }`;
 
     return (
-        <div className="flex h-screen overflow-hidden bg-gray-50 print:bg-white print:block">
+        <div className="flex h-screen print:h-auto overflow-hidden bg-gray-50 print:bg-white print:block">
             <aside className="w-64 bg-blue-800 text-white flex flex-col z-10 shadow-[4px_0_24px_rgba(0,0,0,0.50)] print:hidden">
                 <div className="p-4">
                     <h2 className="text-xl font-bold mb-8 mt-4 text-center">ZLAGODA Cashier</h2>

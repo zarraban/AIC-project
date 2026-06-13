@@ -17,7 +17,7 @@ export default function ManagerLayout() {
         }`;
 
     return (
-        <div className="flex h-screen print:bg-white bg-gray-50 overflow-hidden print:block">
+        <div className="flex h-screen print:h-auto print:bg-white bg-gray-50 overflow-hidden print:block">
             <aside className="w-64 bg-green-800 text-white flex flex-col z-10 shadow-[4px_0_24px_rgba(0,0,0,0.50)] print:hidden">
                 <div className="p-4">
                     <h2 className="text-xl font-bold mb-8 mt-4 text-center">ZLAGODA Manager</h2>

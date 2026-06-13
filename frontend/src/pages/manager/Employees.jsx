@@ -59,7 +59,10 @@ function Employees() {
     const handleSubmit = async () => {
         const required = ['id_employee', 'empl_surname', 'empl_name', 'empl_role', 'salary', 'date_of_birth', 'date_of_start', 'phone_number', 'city', 'street', 'zip_code'];
         if (required.some(k => !form[k])) { setError('Заповніть усі обов\'язкові поля'); return; }
-        if (modal.mode === 'add' && !form.password) { setError('Введіть пароль для нового працівника'); return; }
+        if (modal.mode === 'add') {
+            if (!form.password) { setError('Введіть пароль для нового працівника'); return; }
+            if (form.password.length < 5) { setError('Пароль має містити мінімум 5 символів'); return; }
+        }
 
         if (parseFloat(form.salary) < 0) {
             setError('Помилка: Зарплата не може бути від\'ємною');
@@ -103,6 +106,7 @@ function Employees() {
 
     const handlePasswordChange = async () => {
         if (!newPassword) { setError('Введіть новий пароль'); return; }
+        if (newPassword.length < 5) { setError('Пароль має містити мінімум 5 символів'); return; }
         setSaving(true);
         try {
             await changePassword(pwdModal.id, { new_password: newPassword });
@@ -198,6 +202,7 @@ function Employees() {
                                 }}
                                 disabled={modal.mode === 'edit'}
                                 placeholder="XXX-001"
+                                maxLength={10}
                             />
                         </div>
                         <div>
