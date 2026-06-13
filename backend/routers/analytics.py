@@ -49,18 +49,56 @@ async def get_promo_hunters(db: psycopg.AsyncConnection = Depends(get_db)):
 
 
 #
+# Смирнов
 #
-#
 
-@router.get("/teammate2/query1/{param}")
-async def t2_query1(param: str, db: psycopg.AsyncConnection = Depends(get_db)):
+@router.get("/smyrnov/purchases-by-category/{card_number}")
+async def smyrnov_purchases_by_category(card_number: str, db: psycopg.AsyncConnection = Depends(get_db)):
+    async with db.cursor() as cursor:
+        await cursor.execute(
+            """
+            SELECT c.category_name,
+                   COUNT(DISTINCT r.receipt_number) AS receipt_count,
+                   SUM(s.product_number) AS total_qty,
+                   SUM(s.selling_price * s.product_number) AS total_sum
+            FROM "Sale" s
+            JOIN "Receipt" r ON r.receipt_number = s.receipt_number
+            JOIN "Store_Product" sp ON sp.upc = s.upc
+            JOIN "Product" p ON p.id_product = sp.id_product
+            JOIN "Category" c ON c.category_number = p.category_number
+            WHERE r.card_number = %s
+            GROUP BY c.category_name
+            ORDER BY total_sum DESC;
+            """,
+            (card_number,)
+        )
+        rows = await cursor.fetchall()
+        return [dict(row) for row in rows]
 
-    return []
 
-@router.get("/teammate2/query2")
-async def t2_query2(db: psycopg.AsyncConnection = Depends(get_db)):
-
-    return []
+@router.get("/smyrnov/customers-never-bought/{upc}")
+async def smyrnov_customers_never_bought(upc: str, db: psycopg.AsyncConnection = Depends(get_db)):
+    async with db.cursor() as cursor:
+        await cursor.execute(
+            """
+            SELECT cc.card_number, cc.cust_surname, cc.cust_name, cc.phone_number
+            FROM "Customer_Card" cc
+            WHERE NOT EXISTS (
+                SELECT 1 FROM "Store_Product" sp
+                WHERE sp.upc = %s
+                AND NOT EXISTS (
+                    SELECT 1 FROM "Sale" s
+                    JOIN "Receipt" r ON s.receipt_number = r.receipt_number
+                    WHERE s.upc = sp.upc
+                      AND r.card_number = cc.card_number
+                )
+            )
+            ORDER BY cc.cust_surname;
+            """,
+            (upc,)
+        )
+        rows = await cursor.fetchall()
+        return [dict(row) for row in rows]
 
 
 #
