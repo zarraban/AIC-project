@@ -33,7 +33,7 @@ app.include_router(employees.router)
 app.include_router(customer_cards.router)
 app.include_router(receipts.router)
 app.include_router(reports.router)
-app.include_router(analytics.router, prefix="/api")
+app.include_router(analytics.router)
 
 frontend_path = os.path.join(os.path.dirname(__file__), "..", "frontend", "dist")
 if os.path.exists(frontend_path):
