@@ -1,5 +1,6 @@
 import React, { useState } from 'react';
 import api from '../../services/api';
+import axios from 'axios';
 
 export default function Analytics() {
     const [activeTab, setActiveTab] = useState('vashchenko');
@@ -27,7 +28,11 @@ export default function Analytics() {
         if (!vCard) { setError('Введіть номер картки'); return; }
         setVLoad1(true); setError('');
         try {
-            const res = await api.get(`/analytics/vashchenko/cashier-stats/${vCard}`);
+            const token = localStorage.getItem('token');
+            const res = await axios.get(
+                `http://localhost:8000/analytics/vashchenko/cashier-stats/${vCard}`,
+                { headers: { Authorization: `Bearer ${token}` } }
+            );
             setVRes1(res.data);
         } catch { setError('Помилка запиту 1'); } finally { setVLoad1(false); }
     };
@@ -35,7 +40,11 @@ export default function Analytics() {
     const handleVashchenkoQ2 = async () => {
         setVLoad2(true); setError('');
         try {
-            const res = await api.get(`/analytics/vashchenko/promo-hunters`);
+            const token = localStorage.getItem('token');
+            const res = await axios.get(
+                `http://localhost:8000/analytics/vashchenko/promo-hunters`,
+                { headers: { Authorization: `Bearer ${token}` } }
+            );
             setVRes2(res.data);
         } catch { setError('Помилка запиту 2'); } finally { setVLoad2(false); }
     };
