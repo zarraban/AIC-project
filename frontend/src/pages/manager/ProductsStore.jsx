@@ -119,7 +119,10 @@ export default function StoreProducts() {
             const baseProd = baseProducts.find(bp => bp.id_product === p.id_product);
             return {
                 ...p,
-                product_name: baseProd?.product_name || `ID: ${p.id_product}`,
+                product_name: baseProd?.product_name || p.product_name || `ID: ${p.id_product}`,
+                category_name: baseProd?.category_name || p.category_name || 'Немає даних',
+                manufacturer: baseProd?.manufacturer || p.manufacturer || 'Немає даних',
+                category_name: baseProd?.category_name || p.category_name || 'Немає даних',
                 characteristics: baseProd?.characteristics || 'Немає даних'
             };
         })
@@ -144,14 +147,13 @@ export default function StoreProducts() {
     const columns = [
         { key: 'upc', label: 'UPC (Штрих-код)' },
         { key: 'product_name', label: 'Назва товару' },
+        { key: 'category_name', label: 'Категорія' },
+        { key: 'manufacturer', label: 'Виробник' },
+        { key: 'characteristics', label: 'Характеристики' },
         { key: 'selling_price', label: 'Ціна', render: (val) => `${Number(val).toFixed(2)} грн` },
         { key: 'products_number', label: 'Кількість' },
         { key: 'promotional_product', label: 'Акція', render: (val) => val ? <span className="text-blue-600 font-bold">Так</span> : 'Ні' },
     ];
-
-    if (search.trim() !== '') {
-        columns.splice(2, 0, { key: 'characteristics', label: 'Характеристики' });
-    }
 
     return (
         <div>
@@ -243,7 +245,7 @@ export default function StoreProducts() {
                                 <option value="" disabled>Оберіть з довідника...</option>
                                 {baseProducts.map(bp => (
                                     <option key={bp.id_product} value={bp.id_product}>
-                                        {bp.product_name} (ID: {bp.id_product})
+                                        (ID: {bp.id_product}) {bp.category_name}. {bp.product_name} від "{bp.manufacturer}" [{bp.characteristics}] 
                                     </option>
                                 ))}
                             </select>
