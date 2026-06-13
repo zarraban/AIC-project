@@ -48,10 +48,6 @@ async def get_promo_hunters(db: psycopg.AsyncConnection = Depends(get_db)):
         raise HTTPException(status_code=500, detail=str(e))
 
 
-#
-# Смирнов
-#
-
 @router.get("/smyrnov/purchases-by-category/{card_number}")
 async def smyrnov_purchases_by_category(card_number: str, db: psycopg.AsyncConnection = Depends(get_db)):
     async with db.cursor() as cursor:
