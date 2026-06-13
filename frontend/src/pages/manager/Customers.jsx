@@ -208,7 +208,7 @@ export default function Customers() {
             onClick={() => setPrintOpen(true)}
             className="px-4 py-2 text-sm font-bold border border-gray-300 rounded-md hover:bg-gray-50 transition-colors"
           >
-            🖨 Звіт
+            🖨 Друк
           </button>
           <button
             onClick={openAdd}
