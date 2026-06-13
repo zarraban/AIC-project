@@ -79,15 +79,18 @@ async def create_store_product(
     async with db.cursor() as cursor:
         try:
             await cursor.execute(
-                'SELECT 1 FROM "Store_Product" WHERE id_product = %s AND promotional_product = %s',
+                'SELECT upc FROM "Store_Product" WHERE id_product = %s AND promotional_product = %s',
                 (data.id_product, data.promotional_product)
             )
-            if await cursor.fetchone():
+            existing = await cursor.fetchone()
+            if existing and existing["upc"] != data.upc:
                 status_str = "Акційний" if data.promotional_product else "Звичайний"
-                raise HTTPException(status_code=400, detail=f"Увага! {status_str} товар для базового ID {data.id_product} вже існує у магазині. Не можна додати його двічі.")
+                raise HTTPException(status_code=400, detail=f"Увага! {status_str} товар для ID {data.id_product} вже існує з іншим UPC у магазині. Не можна додати його двічі.")
             await cursor.execute(
                 """INSERT INTO "Store_Product" (upc, upc_prom, id_product, selling_price, products_number, promotional_product)
-                   VALUES (%s, %s, %s, %s, %s, %s)""",
+                   VALUES (%s, %s, %s, %s, %s, %s)
+                   ON CONFLICT (upc) DO UPDATE 
+                   SET products_number = "Store_Product".products_number + EXCLUDED.products_number, selling_price = EXCLUDED.selling_price""",
                 (data.upc, data.upc_prom, data.id_product, data.selling_price, data.products_number, data.promotional_product)
             )
             await db.commit()
