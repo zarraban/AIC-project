@@ -5,6 +5,7 @@ import { getReceipts, deleteReceipt, getReceiptDetails } from '../../services/re
 import { getEmployees } from '../../services/employeeService';
 import { getStoreProducts } from '../../services/productStoreService';
 import { getProducts } from '../../services/productInfoService';
+import PrintPreviewModal from '../../components/PrintPreviewModal';
 
 const inputCls = "w-full px-4 py-2 border border-gray-300 rounded-md text-sm focus:outline-none focus:ring-1 focus:ring-green-600";
 
@@ -15,6 +16,7 @@ export default function Receipts() {
     const [baseProducts, setBaseProducts] = useState([]);
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState('');
+    const [printOpen, setPrintOpen] = useState(false);
 
     const [dateFrom, setDateFrom] = useState('');
     const [dateTo, setDateTo] = useState('');
@@ -132,7 +134,7 @@ export default function Receipts() {
             <div className="flex items-center justify-between mb-6 print:hidden">
                 <h1 className="text-2xl font-bold text-gray-900">Чеки та звіти продажу</h1>
                 <div className="flex gap-3">
-                    <button onClick={() => window.print()}
+                    <button onClick={() => setPrintOpen(true)}
                             className="px-4 py-2 text-sm font-bold border border-gray-300 rounded-md hover:bg-gray-50 transition-colors">
                         🖨 Друк
                     </button>
@@ -172,7 +174,7 @@ export default function Receipts() {
                 <h1 className="text-2xl font-bold">Міні-супермаркет ZLAGODA</h1>
                 <h2 className="text-lg">Звіт з продажу</h2>
                 <p className="text-sm text-gray-500">
-                    Період: {dateFrom ? new Date(dateFrom).toLocaleDateString() : 'Початок'} — {dateTo ? new Date(dateTo).toLocaleDateString() : 'Сьогодні'}
+                    Дата формування: {new Date().toLocaleDateString('uk-UA', { day: '2-digit', month: '2-digit', year: 'numeric', hour: '2-digit', minute: '2-digit' })}
                 </p>
                 <p className="text-sm text-gray-500">
                     Касир: {selectedCashier === 'all' ? 'Усі касири' : cashiers.find(c => c.id_employee === selectedCashier)?.empl_surname}
@@ -213,8 +215,9 @@ export default function Receipts() {
                 </div>
             </div>
 
-            <div className="hidden print:block mt-6 border-t pt-4 text-sm text-gray-500 text-center">
-                Кількість чеків у звіті: {filtered.length}
+            <div className="hidden print:flex justify-between mt-6 border-t pt-4 text-sm text-gray-500">
+                <span>Міні-супермаркет «ZLAGODA» — Конфіденційний документ</span>
+                <span className="font-bold">Кількість чеків у звіті: {filtered.length}</span>
             </div>
 
             <Modal
@@ -300,6 +303,15 @@ export default function Receipts() {
                     </div>
                 )}
             </Modal>
+
+            <PrintPreviewModal
+                isOpen={printOpen}
+                onClose={() => setPrintOpen(false)}
+                title="Чеки та звіти продажу"
+                subtitle={`З ${dateFrom || 'початку'} по ${dateTo || 'сьогодні'}`}
+                columns={columns.filter(c => c.key !== 'actions')}
+                data={filtered}
+            />
         </div>
     );
 }

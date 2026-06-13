@@ -2,6 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { getSalesByPeriod, getProductSales } from '../../services/reportService';
 import { getEmployees } from '../../services/employeeService';
 import { getProducts } from '../../services/productInfoService';
+import PrintPreviewModal from '../../components/PrintPreviewModal';
 
 const inputCls = "w-full px-4 py-2 border border-gray-300 rounded-md text-sm focus:outline-none focus:ring-1 focus:ring-green-600";
 const btnCls = "px-4 py-2 text-sm font-bold text-white bg-green-600 rounded-md hover:bg-green-700 transition-colors disabled:bg-gray-400";
@@ -22,6 +23,7 @@ export default function Reports() {
     const [productTotalSold, setProductTotalSold] = useState(null);
     const [loading, setLoading] = useState(false);
     const [error, setError] = useState('');
+    const [printOpen, setPrintOpen] = useState(false);
 
     useEffect(() => {
         getEmployees().then(res => setCashiers(res.data.filter(e => e.empl_role.toLowerCase() === 'cashier'))).catch(console.error);
@@ -63,7 +65,7 @@ export default function Reports() {
         <div>
             <div className="flex items-center justify-between mb-6 print:hidden">
                 <h1 className="text-2xl font-bold text-gray-900">Аналітичні звіти</h1>
-                <button onClick={() => window.print()} className="px-4 py-2 text-sm font-bold border border-gray-300 rounded-md hover:bg-gray-50">
+                <button onClick={() => setPrintOpen(true)} className="px-4 py-2 text-sm font-bold border border-gray-300 rounded-md hover:bg-gray-50">
                     🖨 Друк
                 </button>
             </div>
@@ -136,6 +138,7 @@ export default function Reports() {
                     {activeTab === 'sales' ? 'Звіт: Загальна сума продажів' : 'Звіт: Продажі товару'}
                 </h2>
                 <p className="text-sm text-gray-500">Період: {dateFrom || '—'} — {dateTo || '—'}</p>
+                <p className="text-sm text-gray-500 mt-1">Дата формування: {new Date().toLocaleDateString('uk-UA', { day: '2-digit', month: '2-digit', year: 'numeric', hour: '2-digit', minute: '2-digit' })}</p>
             </div>
 
             {activeTab === 'sales' && salesSummary && (
@@ -165,11 +168,44 @@ export default function Reports() {
                 </div>
             )}
 
+            <div className="hidden print:flex justify-between mt-6 border-t pt-4 text-sm text-gray-500">
+                <span>Міні-супермаркет «ZLAGODA» — Конфіденційний документ</span>
+            </div>
+
             {!loading && !salesSummary && productTotalSold === null && !error && (
                 <div className="text-center p-8 text-gray-400 border-2 border-dashed border-gray-200 rounded-lg mt-4 print:hidden">
                     Оберіть параметри та натисніть "Згенерувати" для отримання звіту
                 </div>
             )}
+
+            <PrintPreviewModal
+                isOpen={printOpen}
+                onClose={() => setPrintOpen(false)}
+                title={activeTab === 'sales' ? 'Звіт: Загальна сума продажів' : 'Звіт: Продажі товару'}
+                subtitle={`Період: ${dateFrom || '—'} — ${dateTo || '—'}`}
+                columns={
+                    activeTab === 'sales' 
+                    ? [
+                        { key: 'cashier', label: 'Касир' },
+                        { key: 'count', label: 'Оброблено чеків' },
+                        { key: 'total_sum', label: 'Загальна сума (грн)' }
+                      ]
+                    : [
+                        { key: 'product_name', label: 'Товар' },
+                        { key: 'total_sold', label: 'Продано (шт.)' }
+                      ]
+                }
+                data={
+                    activeTab === 'sales' && salesSummary ? [{
+                        cashier: selectedCashier === 'all' ? 'Усі касири' : cashiers.find(c => c.id_employee === selectedCashier)?.empl_surname,
+                        count: salesSummary.count,
+                        total_sum: Number(salesSummary.total_sum || 0).toFixed(2)
+                    }] : activeTab === 'products' && productTotalSold !== null ? [{
+                        product_name: products.find(p => p.id_product === Number(selectedProduct))?.product_name,
+                        total_sold: productTotalSold
+                    }] : []
+                }
+            />
         </div>
     );
 }

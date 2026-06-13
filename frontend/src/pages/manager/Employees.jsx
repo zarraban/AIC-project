@@ -2,6 +2,7 @@ import React, { useState, useEffect } from 'react';
 import DataTable from '../../components/DataTable';
 import Modal from '../../components/Modal';
 import { getEmployees, getCashiers, createEmployee, updateEmployee, deleteEmployee, changePassword } from '../../services/employeeService';
+import PrintPreviewModal from '../../components/PrintPreviewModal';
 
 const EMPTY = {
     id_employee: '', empl_surname: '', empl_name: '', empl_patronymic: '',
@@ -23,6 +24,7 @@ function Employees() {
     const [newPassword, setNewPassword] = useState('');
     const [saving, setSaving] = useState(false);
     const [error, setError] = useState('');
+    const [printOpen, setPrintOpen] = useState(false);
 
     const load = async () => {
         setLoading(true);
@@ -141,7 +143,7 @@ function Employees() {
             <div className="flex items-center justify-between mb-6 print:hidden">
                 <h1 className="text-2xl font-bold text-gray-900">Працівники</h1>
                 <div className="flex gap-3">
-                    <button onClick={() => window.print()}
+                    <button onClick={() => setPrintOpen(true)}
                             className="px-4 py-2 text-sm font-bold border border-gray-300 rounded-md hover:bg-gray-50 transition-colors">
                         🖨 Друк
                     </button>
@@ -174,14 +176,15 @@ function Employees() {
             <div className="hidden print:block mb-6 text-center border-b pb-4">
                 <h1 className="text-2xl font-bold">Міні-супермаркет ZLAGODA</h1>
                 <h2 className="text-lg">Звіт: {filter === 'cashier' ? 'Касири' : 'Всі працівники'}</h2>
-                <p className="text-sm text-gray-500">{new Date().toLocaleDateString('uk-UA')}</p>
+                <p className="text-sm text-gray-500">Дата формування: {new Date().toLocaleDateString('uk-UA', { day: '2-digit', month: '2-digit', year: 'numeric', hour: '2-digit', minute: '2-digit' })}</p>
             </div>
 
             <DataTable columns={columns} data={filtered} loading={loading}
                        onEdit={openEdit} onDelete={handleDelete} />
 
-            <div className="hidden print:block mt-6 border-t pt-4 text-sm text-gray-500 text-center">
-                Всього записів: {filtered.length}
+            <div className="hidden print:flex justify-between mt-6 border-t pt-4 text-sm text-gray-500">
+                <span>Міні-супермаркет «ZLAGODA» — Конфіденційний документ</span>
+                <span className="font-bold">Всього записів: {filtered.length}</span>
             </div>
 
             <Modal isOpen={modal.open} onClose={() => setModal({ ...modal, open: false })}
@@ -296,6 +299,14 @@ function Employees() {
                     <input type="password" value={newPassword} onChange={(e) => setNewPassword(e.target.value)} className={inputCls} />
                 </div>
             </Modal>
+
+            <PrintPreviewModal
+                isOpen={printOpen}
+                onClose={() => setPrintOpen(false)}
+                title={filter === 'cashier' ? 'Касири' : 'Всі працівники'}
+                columns={columns}
+                data={filtered}
+            />
         </div>
     );
 }

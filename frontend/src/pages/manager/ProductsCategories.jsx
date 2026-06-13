@@ -2,6 +2,7 @@ import React, { useState, useEffect } from 'react';
 import DataTable from '../../components/DataTable';
 import Modal from '../../components/Modal';
 import { getCategories, createCategory, updateCategory, deleteCategory } from '../../services/categoryService';
+import PrintPreviewModal from '../../components/PrintPreviewModal';
 
 const EMPTY = { category_number: '', category_name: '' };
 
@@ -16,6 +17,7 @@ function ProductsCategories() {
     const [form, setForm] = useState(EMPTY);
     const [saving, setSaving] = useState(false);
     const [error, setError] = useState('');
+    const [printOpen, setPrintOpen] = useState(false);
 
     const load = async () => {
         setLoading(true);
@@ -64,7 +66,7 @@ function ProductsCategories() {
             <div className="flex items-center justify-between mb-6 print:hidden">
                 <h1 className="text-2xl font-bold text-gray-900">Категорії товарів</h1>
                 <div className="flex gap-3">
-                    <button onClick={() => window.print()}
+                    <button onClick={() => setPrintOpen(true)}
                             className="px-4 py-2 text-sm font-bold border border-gray-300 rounded-md hover:bg-gray-50 transition-colors">
                         🖨 Друк
                     </button>
@@ -89,13 +91,14 @@ function ProductsCategories() {
             <div className="hidden print:block mb-6 text-center border-b pb-4">
                 <h1 className="text-2xl font-bold">Міні-супермаркет ZLAGODA</h1>
                 <h2 className="text-lg">Звіт: Категорії товарів</h2>
-                <p className="text-sm text-gray-500">{new Date().toLocaleDateString('uk-UA')}</p>
+                <p className="text-sm text-gray-500">Дата формування: {new Date().toLocaleDateString('uk-UA', { day: '2-digit', month: '2-digit', year: 'numeric', hour: '2-digit', minute: '2-digit' })}</p>
             </div>
 
             <DataTable columns={columns} data={filtered} loading={loading} onEdit={openEdit} onDelete={handleDelete} />
 
-            <div className="hidden print:block mt-6 border-t pt-4 text-sm text-gray-500 text-center">
-                Всього записів: {filtered.length}
+            <div className="hidden print:flex justify-between mt-6 border-t pt-4 text-sm text-gray-500">
+                <span>Міні-супермаркет «ZLAGODA» — Конфіденційний документ</span>
+                <span className="font-bold">Всього записів: {filtered.length}</span>
             </div>
 
             <Modal isOpen={modal.open} onClose={() => setModal({ ...modal, open: false })}
@@ -118,6 +121,14 @@ function ProductsCategories() {
                     </div>
                 </div>
             </Modal>
+
+            <PrintPreviewModal
+                isOpen={printOpen}
+                onClose={() => setPrintOpen(false)}
+                title="Категорії товарів"
+                columns={columns}
+                data={filtered}
+            />
         </div>
     );
 }
