@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import DataTable from '../../components/DataTable';
 import Modal from '../../components/Modal';
+import PrintPreviewModal from '../../components/PrintPreviewModal';
 import { getCustomerCards, createCustomerCard, updateCustomerCard } from '../../services/customerCardService';
 
 const EMPTY = {
@@ -29,6 +30,8 @@ export default function Customers() {
     const [form, setForm] = useState(EMPTY);
     const [saving, setSaving] = useState(false);
     const [error, setError] = useState('');
+
+    const [printOpen, setPrintOpen] = useState(false);
 
     useEffect(() => {
         const fetchInitialData = async () => {
@@ -128,10 +131,18 @@ export default function Customers() {
         <div>
             <div className="flex items-center justify-between mb-6 print:hidden">
                 <h1 className="text-2xl font-bold text-gray-900">Постійні клієнти</h1>
-                <button onClick={openAdd}
-                        className="px-4 py-2 text-sm font-bold text-white bg-blue-600 rounded-md hover:bg-blue-700 transition-colors">
-                    + Додати
-                </button>
+                <div className="flex gap-3">
+                    <button
+                        onClick={() => setPrintOpen(true)}
+                        className="px-4 py-2 text-sm font-bold border border-gray-300 rounded-md hover:bg-gray-50 transition-colors"
+                    >
+                        🖨 Друк
+                    </button>
+                    <button onClick={openAdd}
+                            className="px-4 py-2 text-sm font-bold text-white bg-blue-600 rounded-md hover:bg-blue-700 transition-colors">
+                        + Додати
+                    </button>
+                </div>
             </div>
 
             <div className="flex gap-4 mb-4 print:hidden">
@@ -159,10 +170,24 @@ export default function Customers() {
                 <div className="mb-4 p-3 bg-red-50 border-l-4 border-red-600 text-red-700 text-sm">{error}</div>
             )}
 
+            <div className="hidden print:block mb-6 text-center border-b pb-4">
+                <h1 className="text-2xl font-bold">Міні-супермаркет ZLAGODA</h1>
+                <h2 className="text-lg">
+                    Звіт: Постійні клієнти
+                    {percentFilter !== "all"
+                        ? ` (Знижка ${percentFilter}%)`
+                        : " (Усі знижки)"}
+                </h2>
+                <p className="text-sm text-gray-500">
+                    Дата формування: {new Date().toLocaleDateString('uk-UA', { day: '2-digit', month: '2-digit', year: 'numeric', hour: '2-digit', minute: '2-digit' })}
+                </p>
+            </div>
+
             <DataTable columns={columns} data={filtered} loading={loading} onEdit={openEdit} />
 
-            <div className="hidden print:block mt-6 border-t pt-4 text-sm text-gray-500 text-center">
-                Кількість клієнтів у списку: {filtered.length}
+            <div className="hidden print:flex justify-between mt-6 border-t pt-4 text-sm text-gray-500">
+                <span>Міні-супермаркет «ZLAGODA» — Конфіденційний документ</span>
+                <span className="font-bold">Кількість клієнтів у списку: {filtered.length}</span>
             </div>
 
             <Modal isOpen={modal.open} onClose={() => setModal({ ...modal, open: false })}
@@ -240,6 +265,28 @@ export default function Customers() {
                     </div>
                 </div>
             </Modal>
+
+            <PrintPreviewModal
+                isOpen={printOpen}
+                onClose={() => setPrintOpen(false)}
+                title="Постійні клієнти"
+                subtitle={percentFilter !== 'all' ? `Знижка: ${percentFilter}%` : 'Усі категорії знижок'}
+                columns={[
+                    { key: 'card_number', label: 'Номер карти' },
+                    { key: 'cust_surname', label: 'Прізвище' },
+                    { key: 'cust_name', label: "Ім'я" },
+                    { key: 'cust_patronymic', label: 'По батькові' },
+                    { key: 'phone_number', label: 'Телефон' },
+                    { key: 'city', label: 'Місто' },
+                    { key: 'percent', label: 'Знижка' },
+                ]}
+                data={filtered}
+                renderCell={(col, row) => {
+                    if (col.key === 'percent') return `${row.percent}%`;
+                    return row[col.key] ?? '—';
+                }}
+                footer={`Знижка: ${percentFilter !== 'all' ? percentFilter + '%' : 'усі'}`}
+            />
         </div>
     );
 }
