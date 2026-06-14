@@ -4,7 +4,9 @@ import Modal from '../../components/Modal';
 import { getReceipts, deleteReceipt, getReceiptDetails } from '../../services/receiptService';
 import { getEmployees } from '../../services/employeeService';
 import { getStoreProducts } from '../../services/productStoreService';
+import api from '../../services/api';
 import { getProducts } from '../../services/productInfoService';
+import { getCategories } from '../../services/categoryService';
 import PrintPreviewModal from '../../components/PrintPreviewModal';
 
 const inputCls = "w-full px-4 py-2 border border-gray-300 rounded-md text-sm focus:outline-none focus:ring-1 focus:ring-green-600";
@@ -23,18 +25,45 @@ export default function Receipts() {
     const [selectedCashier, setSelectedCashier] = useState('all');
 
     const [detailsModal, setDetailsModal] = useState({ open: false, receipt: null, items: [], loading: false });
+    const [promoReceipts, setPromoReceipts] = useState({ loaded: false, data: [], loading: false, error: '' });
+    const [categories, setCategories] = useState([]);
+    const [analyticsCat, setAnalyticsCat] = useState('');
 
+    const handleLoadCategoryReceipts = async () => {
+        if (!analyticsCat) {
+            setPromoReceipts(prev => ({...prev, error: 'Оберіть категорію з таблиці або списку'}));
+            return;
+        }
+        const catProducts = storeProducts.filter(sp => {
+            const bp = baseProducts.find(p => p.id_product === sp.id_product);
+            return bp && Number(bp.category_number) === Number(analyticsCat);
+        });
+        if (catProducts.length === 0) {
+            setPromoReceipts({ loaded: true, data: [], loading: false, isEmptyCategory: true, error: '' });
+            return;
+        }
+        setPromoReceipts({ loaded: false, data: [], loading: true, isEmptyCategory: false, error: '' });
+        try {
+            const res = await api.get(`http://localhost:8000/analytics/volik/receipts-with-all-category-products/${analyticsCat}`);
+            setPromoReceipts({ loaded: true, data: res.data, loading: false, isEmptyCategory: false, error: '' });
+        } catch (e) {
+            console.error(e);
+            setPromoReceipts({ loaded: true, data: [], loading: false, isEmptyCategory: false, error: 'Помилка завантаження' });
+        }
+    };
     const loadData = async () => {
         setLoading(true);
         setError('');
         try {
-            const [receiptsRes, employeesRes, storeRes, baseRes] = await Promise.all([
+            const [receiptsRes, employeesRes, storeRes, baseRes, catRes] = await Promise.all([
                 getReceipts(),
                 getEmployees(),
                 getStoreProducts(),
-                getProducts()
+                getProducts(),
+                getCategories()
             ]);
             setData(receiptsRes.data);
+            setCategories(catRes.data);
 
             const onlyCashiers = employeesRes.data.filter(emp => emp.empl_role.toLowerCase() === 'cashier');
             setCashiers(onlyCashiers);
@@ -303,6 +332,55 @@ export default function Receipts() {
                     </div>
                 )}
             </Modal>
+
+            <div className="mt-8 print:hidden border border-gray-200 rounded-lg bg-white p-6 shadow-sm">
+                <h2 className="text-base font-bold text-gray-800 mb-1">
+                    📊 Чеки, в яких куплені всі товари обраної категорії
+                </h2>
+                <p className="text-xs text-gray-400 mb-4">Оберіть категорію з переліку</p>
+                <div className="flex gap-3 mb-4">
+                    <select value={analyticsCat} onChange={(e) => { setAnalyticsCat(e.target.value); setPromoReceipts(prev => ({...prev, loaded: false, error: ''})); }} className="flex-1 max-w-xs px-4 py-2 border border-gray-300 rounded-md text-sm focus:outline-none focus:ring-1 focus:ring-green-600">
+                        <option value="" disabled>Оберіть категорію...</option>
+                        {categories.map(c => (
+                            <option key={c.category_number} value={c.category_number}>{c.category_name}</option>
+                        ))}
+                    </select>
+                    <button onClick={handleLoadCategoryReceipts} disabled={promoReceipts.loading} className="px-4 py-2 text-sm font-bold text-white bg-green-600 rounded-md hover:bg-green-700 transition-colors disabled:bg-gray-400">
+                        {promoReceipts.loading ? "Завантаження..." : "Знайти"}
+                    </button>
+                </div>
+                {promoReceipts.error && (
+                    <div className="mb-3 p-3 bg-red-50 border-l-4 border-red-600 text-red-700 text-sm">
+                        {promoReceipts.error}
+                    </div>
+                )}
+                {!promoReceipts.loading && promoReceipts.loaded && promoReceipts.data.length > 0 && (
+                    <table className="w-full text-sm text-left border border-gray-200 rounded mt-2">
+                        <thead className="bg-gray-50 text-xs uppercase font-bold text-gray-600">
+                            <tr>
+                                <th className="p-3">№ Чека</th>
+                                <th className="p-3">Дата і час</th>
+                                <th className="p-3 text-right">Сума чека</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {promoReceipts.data.map(r => (
+                                <tr key={r.receipt_number} className="border-b border-gray-100 hover:bg-gray-50">
+                                    <td className="p-3 font-mono text-xs">{r.receipt_number}</td>
+                                    <td className="p-3">{new Date(r.print_date).toLocaleString('uk-UA')}</td>
+                                    <td className="p-3 text-right font-bold text-green-700">{Number(r.sum_total).toFixed(2)} грн</td>
+                                </tr>
+                            ))}
+                        </tbody>
+                    </table>
+                )}
+                {!promoReceipts.loading && promoReceipts.loaded && promoReceipts.data.length === 0 && !promoReceipts.isEmptyCategory && (
+                    <p className="text-sm text-gray-500 mt-2">Не знайдено жодного чека, в якому б були абсолютно всі товари з обраної категорії.</p>
+                )}
+                {!promoReceipts.loading && promoReceipts.loaded && promoReceipts.isEmptyCategory && (
+                    <p className="text-sm text-gray-500 mt-2">У цій категорії наразі немає жодного товару в асортименті магазину.</p>
+                )}
+            </div>
 
             <PrintPreviewModal
                 isOpen={printOpen}
