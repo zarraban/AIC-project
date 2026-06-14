@@ -21,7 +21,7 @@ export default function ManagerLayout() {
             <aside className="w-64 bg-green-800 text-white flex flex-col z-10 shadow-[4px_0_24px_rgba(0,0,0,0.50)] print:hidden">
                 <div className="p-4">
                     <h2 className="text-xl font-bold mb-8 mt-4 text-center">ZLAGODA Manager</h2>
-                    <nav className="space-y-1">
+                    <nav className="space-y-2">
                         <NavLink to="/manager/employees" className={linkClass}>
                             👥 Працівники
                         </NavLink>
@@ -43,10 +43,6 @@ export default function ManagerLayout() {
                         <NavLink to="/manager/reports" className={linkClass}>
                             📊 Аналітичні звіти
                         </NavLink>
-                        <NavLink to="/manager/individual-reports" className={linkClass}>
-                            🎓 Індивідуальні запити
-                        </NavLink>
-
                     </nav>
                 </div>
 
