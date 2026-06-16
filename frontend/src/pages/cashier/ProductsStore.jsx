@@ -3,6 +3,7 @@ import DataTable from '../../components/DataTable';
 import { getStoreProducts } from '../../services/productStoreService';
 import { getProducts } from '../../services/productInfoService';
 import { getCategories } from '../../services/categoryService';
+import PrintPreviewModal from '../../components/PrintPreviewModal';
 
 export default function ProductsStoreCsh() {
     const [data, setData] = useState([]);
@@ -14,6 +15,7 @@ export default function ProductsStoreCsh() {
     const [promoFilter, setPromoFilter] = useState('all');
     const [categoryFilter, setCategoryFilter] = useState('all');
     const [sortBy, setSortBy] = useState('name');
+    const [printOpen, setPrintOpen] = useState(false);
 
     const loadData = async () => {
         setLoading(true);
@@ -85,7 +87,7 @@ export default function ProductsStoreCsh() {
         <div>
             <div className="flex items-center justify-between mb-6 print:hidden">
                 <h1 className="text-2xl font-bold text-gray-900">Товари в магазині</h1>
-                <button onClick={() => window.print()}
+                <button onClick={() => setPrintOpen(true)}
                         className="px-4 py-2 text-sm font-bold border border-gray-300 rounded-md hover:bg-gray-50 transition-colors">
                     🖨 Друк
                 </button>
@@ -136,14 +138,24 @@ export default function ProductsStoreCsh() {
             <div className="hidden print:block mb-6 text-center border-b pb-4">
                 <h1 className="text-2xl font-bold">Міні-супермаркет ZLAGODA</h1>
                 <h2 className="text-lg">Товари в магазині</h2>
-                <p className="text-sm text-gray-500">{new Date().toLocaleDateString('uk-UA')}</p>
+                <p className="text-sm text-gray-500">Дата формування: {new Date().toLocaleDateString('uk-UA', { day: '2-digit', month: '2-digit', year: 'numeric', hour: '2-digit', minute: '2-digit' })}</p>
             </div>
 
             <DataTable columns={columns} data={filtered} loading={loading} />
 
-            <div className="hidden print:block mt-6 border-t pt-4 text-sm text-gray-500 text-center">
-                Всього позицій: {filtered.length}
+            <div className="hidden print:flex justify-between mt-6 border-t pt-4 text-sm text-gray-500">
+                <span>Міні-супермаркет «ZLAGODA» — Конфіденційний документ</span>
+                <span className="font-bold">Всього позицій: {filtered.length}</span>
             </div>
+
+            <PrintPreviewModal
+                isOpen={printOpen}
+                onClose={() => setPrintOpen(false)}
+                title="Товари в магазині"
+                subtitle={promoFilter !== 'all' ? (promoFilter === 'promo' ? 'Акційні' : 'Звичайні') : undefined}
+                columns={columns}
+                data={filtered}
+            />
         </div>
     );
 }

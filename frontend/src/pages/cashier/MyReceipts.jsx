@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import DataTable from '../../components/DataTable';
 import Modal from '../../components/Modal';
+import PrintPreviewModal from '../../components/PrintPreviewModal';
 import { useAuth } from '../../context/AuthContext';
 import { getReceipts, getReceiptDetails } from '../../services/receiptService';
 import { getStoreProducts } from '../../services/productStoreService';
@@ -16,12 +17,13 @@ export default function MyReceipts() {
     const [loading, setLoading] = useState(true);
 
     const todayStr = new Date().toISOString().split('T')[0];
-    const [dateFrom, setDateFrom] = useState(todayStr);
-    const [dateTo, setDateTo] = useState(todayStr);
+    const [dateFrom, setDateFrom] = useState('');
+    const [dateTo, setDateTo] = useState('');
     const [search, setSearch] = useState('');
 
     const [detailsModal, setDetailsModal] = useState({ open: false, receipt: null, items: [], loading: false });
     const [error, setError] = useState('');
+    const [printOpen, setPrintOpen] = useState(false);
 
     useEffect(() => {
         const fetchInitialData = async () => {
@@ -69,8 +71,6 @@ export default function MyReceipts() {
         .filter(r => r.receipt_number.toLowerCase().includes(search.toLowerCase()))
         .sort((a, b) => new Date(b.print_date) - new Date(a.print_date));
 
-    const totalSum = filtered.reduce((sum, r) => sum + Number(r.sum_total), 0);
-
     const columns = [
         { key: 'receipt_number', label: 'Номер чека' },
         { key: 'print_date', label: 'Дата і час', render: (val) => new Date(val).toLocaleString('uk-UA') },
@@ -80,7 +80,7 @@ export default function MyReceipts() {
             key: 'actions',
             label: 'Дії',
             render: (_, row) => (
-                <button onClick={() => handleOpenDetails(row)} className="px-3 py-1 text-xs font-bold text-blue-600 bg-blue-50 rounded hover:bg-blue-100">
+                <button onClick={() => handleOpenDetails(row)} className="px-3 py-1 text-xs font-bold text-blue-600 bg-blue-50 rounded hover:bg-blue-100 print:hidden">
                     Деталі
                 </button>
             )
@@ -96,11 +96,17 @@ export default function MyReceipts() {
 
     return (
         <div>
-            <div className="flex items-center justify-between mb-6">
+            <div className="flex items-center justify-between mb-6 print:hidden">
                 <h1 className="text-2xl font-bold text-gray-900">Мої чеки</h1>
+                <button
+                    onClick={() => setPrintOpen(true)}
+                    className="px-4 py-2 text-sm font-bold border border-gray-300 rounded-md hover:bg-gray-50 transition-colors"
+                >
+                    🖨 Друк
+                </button>
             </div>
 
-            <div className="grid grid-cols-1 md:grid-cols-4 gap-4 mb-6 bg-white p-4 rounded-lg shadow-sm border border-gray-200">
+            <div className="grid grid-cols-1 md:grid-cols-4 gap-4 mb-6 bg-white p-4 rounded-lg shadow-sm border border-gray-200 print:hidden">
                 <div>
                     <label className="block text-xs font-bold text-gray-700 uppercase mb-1">З дати</label>
                     <input type="date" value={dateFrom} onChange={(e) => setDateFrom(e.target.value)} className={inputCls} />
@@ -131,14 +137,31 @@ export default function MyReceipts() {
             </div>
 
             {error && !detailsModal.open && (
-                <div className="mb-4 p-3 bg-red-50 border-l-4 border-red-600 text-red-700 text-sm">{error}</div>
+                <div className="mb-4 p-3 bg-red-50 border-l-4 border-red-600 text-red-700 text-sm print:hidden">{error}</div>
             )}
+
+            <div className="hidden print:block mb-6 text-center border-b pb-4">
+                <h1 className="text-2xl font-bold">Міні-супермаркет ZLAGODA</h1>
+                <h2 className="text-lg">Звіт: Мої чеки</h2>
+                <p className="text-sm text-gray-500">
+                    Період: {dateFrom ? new Date(dateFrom).toLocaleDateString('uk-UA') : 'Увесь час'} — {dateTo ? new Date(dateTo).toLocaleDateString('uk-UA') : 'Сьогодні'}
+                </p>
+                <p className="text-sm text-gray-500">
+                    Дата формування: {new Date().toLocaleDateString('uk-UA', { day: '2-digit', month: '2-digit', year: 'numeric', hour: '2-digit', minute: '2-digit' })}
+                </p>
+                <p className="text-sm text-gray-500">Касир: {user?.id}</p>
+            </div>
 
             <DataTable
                 columns={columns}
                 data={filtered}
                 loading={loading}
             />
+
+            <div className="hidden print:flex justify-between mt-6 border-t pt-4 text-sm text-gray-500">
+                <span>Міні-супермаркет «ZLAGODA» — Робочий звіт касира</span>
+                <span className="font-bold">Кількість чеків: {filtered.length}</span>
+            </div>
 
             <Modal
                 isOpen={detailsModal.open}
@@ -214,10 +237,18 @@ export default function MyReceipts() {
                                 </div>
                             );
                         })()}
-
                     </div>
                 )}
             </Modal>
+
+            <PrintPreviewModal
+                isOpen={printOpen}
+                onClose={() => setPrintOpen(false)}
+                title="Мої чеки"
+                subtitle={`З ${dateFrom ? new Date(dateFrom).toLocaleDateString('uk-UA') : 'початку'} по ${dateTo ? new Date(dateTo).toLocaleDateString('uk-UA') : 'сьогодні'}`}
+                columns={columns.filter(c => c.key !== 'actions')}
+                data={filtered}
+            />
         </div>
     );
 }

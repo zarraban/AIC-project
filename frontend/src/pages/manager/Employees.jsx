@@ -2,6 +2,9 @@ import React, { useState, useEffect } from 'react';
 import DataTable from '../../components/DataTable';
 import Modal from '../../components/Modal';
 import { getEmployees, getCashiers, createEmployee, updateEmployee, deleteEmployee, changePassword } from '../../services/employeeService';
+import PrintPreviewModal from '../../components/PrintPreviewModal';
+import api from '../../services/api';
+import { getCategories } from '../../services/categoryService';
 
 const EMPTY = {
     id_employee: '', empl_surname: '', empl_name: '', empl_patronymic: '',
@@ -23,12 +26,40 @@ function Employees() {
     const [newPassword, setNewPassword] = useState('');
     const [saving, setSaving] = useState(false);
     const [error, setError] = useState('');
+    const [printOpen, setPrintOpen] = useState(false);
+    const [analyticsError, setAnalyticsError] = useState('');
+    const [analyticsLoading, setAnalyticsLoading] = useState(false);
+
+    const [analyticsCat, setAnalyticsCat] = useState('');
+    const [analyticsData, setAnalyticsData] = useState([]);
+    const [categories, setCategories] = useState([]);
+
+    const handleAnalyticsFetch = async () => {
+        if (!analyticsCat) {
+            setAnalyticsError('Оберіть категорію з переліку');
+            return;
+        }
+        setAnalyticsError('');
+        setAnalyticsLoading(true);
+        try {
+            const res = await api.get(`http://localhost:8000/analytics/volik/cashier-revenue-by-category/${analyticsCat}`);
+            setAnalyticsData(res.data);
+        } catch (e) {
+            console.error(e);
+            setAnalyticsError('Помилка завантаження');
+            setAnalyticsData(null);
+        } finally {
+            setAnalyticsLoading(false);
+        }
+    };
 
     const load = async () => {
         setLoading(true);
         try {
             const res = filter === 'cashier' ? await getCashiers() : await getEmployees();
             setData(res.data);
+            const catRes = await getCategories();
+            setCategories(catRes.data);
         } catch { setError('Помилка завантаження'); }
         finally { setLoading(false); }
     };
@@ -141,7 +172,7 @@ function Employees() {
             <div className="flex items-center justify-between mb-6 print:hidden">
                 <h1 className="text-2xl font-bold text-gray-900">Працівники</h1>
                 <div className="flex gap-3">
-                    <button onClick={() => window.print()}
+                    <button onClick={() => setPrintOpen(true)}
                             className="px-4 py-2 text-sm font-bold border border-gray-300 rounded-md hover:bg-gray-50 transition-colors">
                         🖨 Друк
                     </button>
@@ -174,14 +205,15 @@ function Employees() {
             <div className="hidden print:block mb-6 text-center border-b pb-4">
                 <h1 className="text-2xl font-bold">Міні-супермаркет ZLAGODA</h1>
                 <h2 className="text-lg">Звіт: {filter === 'cashier' ? 'Касири' : 'Всі працівники'}</h2>
-                <p className="text-sm text-gray-500">{new Date().toLocaleDateString('uk-UA')}</p>
+                <p className="text-sm text-gray-500">Дата формування: {new Date().toLocaleDateString('uk-UA', { day: '2-digit', month: '2-digit', year: 'numeric', hour: '2-digit', minute: '2-digit' })}</p>
             </div>
 
             <DataTable columns={columns} data={filtered} loading={loading}
                        onEdit={openEdit} onDelete={handleDelete} />
 
-            <div className="hidden print:block mt-6 border-t pt-4 text-sm text-gray-500 text-center">
-                Всього записів: {filtered.length}
+            <div className="hidden print:flex justify-between mt-6 border-t pt-4 text-sm text-gray-500">
+                <span>Міні-супермаркет «ZLAGODA» — Конфіденційний документ</span>
+                <span className="font-bold">Всього записів: {filtered.length}</span>
             </div>
 
             <Modal isOpen={modal.open} onClose={() => setModal({ ...modal, open: false })}
@@ -296,6 +328,60 @@ function Employees() {
                     <input type="password" value={newPassword} onChange={(e) => setNewPassword(e.target.value)} className={inputCls} />
                 </div>
             </Modal>
+
+            <div className="mt-8 print:hidden border border-gray-200 rounded-lg bg-white p-6 shadow-sm">
+                <h2 className="text-base font-bold text-gray-800 mb-1">
+                    📊 Дохід касирів по категоріях
+                </h2>
+                <p className="text-xs text-gray-400 mb-4">Оберіть категорію з переліку</p>
+                <div className="flex gap-3 mb-4">
+                    <select value={analyticsCat} onChange={(e) => { setAnalyticsCat(e.target.value); setAnalyticsData(null); setAnalyticsError(''); }} className="flex-1 max-w-xs px-4 py-2 border border-gray-300 rounded-md text-sm focus:outline-none focus:ring-1 focus:ring-green-600">
+                        <option value="" disabled>Оберіть категорію...</option>
+                        {categories.map(c => (
+                            <option key={c.category_number} value={c.category_number}>{c.category_name}</option>
+                        ))}
+                    </select>
+                    <button onClick={handleAnalyticsFetch} disabled={analyticsLoading} className="px-4 py-2 text-sm font-bold text-white bg-green-600 rounded-md hover:bg-green-700 transition-colors disabled:bg-gray-400">
+                        {analyticsLoading ? "Завантаження..." : "Знайти"}
+                    </button>
+                </div>
+                {analyticsError && (
+                    <div className="mb-3 p-3 bg-red-50 border-l-4 border-red-600 text-red-700 text-sm">
+                        {analyticsError}
+                    </div>
+                )}
+                {!analyticsLoading && analyticsData !== null && analyticsData.length === 0 && (
+                    <p className="text-sm text-gray-500 mt-2">Не знайдено жодного продажу товарів з цієї категорії.</p>
+                )}
+                {!analyticsLoading && analyticsData !== null && analyticsData.length > 0 && (
+                    <table className="w-full text-sm text-left border border-gray-200 rounded mt-2">
+                        <thead className="bg-gray-50 text-xs uppercase font-bold text-gray-600">
+                            <tr>
+                                <th className="p-3">Касир</th>
+                                <th className="p-3 text-center">К-сть товарів</th>
+                                <th className="p-3 text-right">Загальний дохід</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {analyticsData.map(r => (
+                                <tr key={r.id_employee} className="border-b border-gray-100 hover:bg-gray-50">
+                                    <td className="p-3">{r.empl_surname} {r.empl_name}</td>
+                                    <td className="p-3 text-center">{r.total_items_sold} шт</td>
+                                    <td className="p-3 text-right font-bold text-green-700">{Number(r.total_revenue).toFixed(2)} грн</td>
+                                </tr>
+                            ))}
+                        </tbody>
+                    </table>
+                )}
+            </div>
+            
+            <PrintPreviewModal
+                isOpen={printOpen}
+                onClose={() => setPrintOpen(false)}
+                title={filter === 'cashier' ? 'Касири' : 'Всі працівники'}
+                columns={columns}
+                data={filtered}
+            />
         </div>
     );
 }

@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from "react";
 import DataTable from "../../components/DataTable";
 import Modal from "../../components/Modal";
+import PrintPreviewModal from "../../components/PrintPreviewModal";
 import {
   getCustomerCards,
   createCustomerCard,
@@ -37,6 +38,7 @@ export default function Customers() {
   const [form, setForm] = useState(EMPTY);
   const [saving, setSaving] = useState(false);
   const [error, setError] = useState("");
+  const [printOpen, setPrintOpen] = useState(false);
 
   const [categoryStats, setCategoryStats] = useState(null);
   const [categoryStatsCard, setCategoryStatsCard] = useState("");
@@ -203,7 +205,7 @@ export default function Customers() {
         <h1 className="text-2xl font-bold text-gray-900">Постійні клієнти</h1>
         <div className="flex gap-3">
           <button
-            onClick={() => window.print()}
+            onClick={() => setPrintOpen(true)}
             className="px-4 py-2 text-sm font-bold border border-gray-300 rounded-md hover:bg-gray-50 transition-colors"
           >
             🖨 Друк
@@ -255,7 +257,7 @@ export default function Customers() {
             : " (Усі знижки)"}
         </h2>
         <p className="text-sm text-gray-500">
-          {new Date().toLocaleDateString("uk-UA")}
+          Дата формування: {new Date().toLocaleDateString('uk-UA', { day: '2-digit', month: '2-digit', year: 'numeric', hour: '2-digit', minute: '2-digit' })}
         </p>
       </div>
 
@@ -267,8 +269,9 @@ export default function Customers() {
         onDelete={handleDelete}
       />
 
-      <div className="hidden print:block mt-6 border-t pt-4 text-sm text-gray-500 text-center">
-        Кількість клієнтів у списку: {filtered.length}
+      <div className="hidden print:flex justify-between mt-6 border-t pt-4 text-sm text-gray-500">
+        <span>Міні-супермаркет «ZLAGODA» — Конфіденційний документ</span>
+        <span className="font-bold">Кількість клієнтів у списку: {filtered.length}</span>
       </div>
 
       <div className="mt-8 print:hidden border border-gray-200 rounded-lg bg-white p-6 shadow-sm">
@@ -473,6 +476,28 @@ export default function Customers() {
           </div>
         </div>
       </Modal>
+
+      <PrintPreviewModal
+        isOpen={printOpen}
+        onClose={() => setPrintOpen(false)}
+        title="Постійні клієнти"
+        subtitle={percentFilter !== 'all' ? `Знижка: ${percentFilter}%` : 'Усі категорії знижок'}
+        columns={[
+          { key: 'card_number', label: 'Номер карти' },
+          { key: 'cust_surname', label: 'Прізвище' },
+          { key: 'cust_name', label: "Ім'я" },
+          { key: 'cust_patronymic', label: 'По батькові' },
+          { key: 'phone_number', label: 'Телефон' },
+          { key: 'city', label: 'Місто' },
+          { key: 'percent', label: 'Знижка' },
+        ]}
+        data={filtered}
+        renderCell={(col, row) => {
+          if (col.key === 'percent') return `${row.percent}%`;
+          return row[col.key] ?? '—';
+        }}
+        footer={`Знижка: ${percentFilter !== 'all' ? percentFilter + '%' : 'усі'}`}
+      />
     </div>
   );
 }

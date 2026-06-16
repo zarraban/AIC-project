@@ -2,7 +2,9 @@ import React, { useState, useEffect } from 'react';
 import DataTable from '../../components/DataTable';
 import Modal from '../../components/Modal';
 import { getProducts, createProduct, updateProduct, deleteProduct } from '../../services/productInfoService.js';
-import { getCategories } from '../../services/categoryService'; // Потрібно для списку категорій
+import { getCategories } from '../../services/categoryService';
+import PrintPreviewModal from '../../components/PrintPreviewModal';
+import api from '../../services/api';
 
 const EMPTY = { id_product: '', category_number: '', product_name: '', manufacturer: '', characteristics: '' };
 
@@ -21,6 +23,10 @@ export default function ProductsInfo() {
     const [form, setForm] = useState(EMPTY);
     const [saving, setSaving] = useState(false);
     const [error, setError] = useState('');
+    const [printOpen, setPrintOpen] = useState(false);
+
+    const [analyticsProductId, setAnalyticsProductId] = useState('');
+    const [productStats, setProductStats] = useState({ loaded: false, data: [], loading: false, error: '' });
 
     const loadData = async () => {
         setLoading(true);
@@ -77,10 +83,25 @@ export default function ProductsInfo() {
         }
     };
 
+    const handleLoadProductStats = async () => {
+        if (!analyticsProductId) {
+            setProductStats(prev => ({...prev, error: 'Оберіть товар з переліку'}));
+            return;
+        }
+        setProductStats({ loaded: false, data: [], loading: true, error: '' });
+        try {
+            const res = await api.get(`http://localhost:8000/analytics/vashchenko/product-sales-stats/${analyticsProductId}`);
+            setProductStats({ loaded: true, data: res.data, loading: false, error: '' });
+        } catch (e) {
+            console.error(e);
+            setProductStats({ loaded: true, data: [], loading: false, error: 'Помилка завантаження статистики' });
+        }
+    };
+
     const filtered = data
-        .filter(p => p.product_name.toLowerCase().includes(search.toLowerCase())) // Пошук за назвою
-        .filter(p => categoryFilter === 'all' || p.category_number === Number(categoryFilter)) // Пошук за категорією
-        .sort((a, b) => a.product_name.localeCompare(b.product_name, 'uk')); // Сортування за абеткою
+        .filter(p => p.product_name.toLowerCase().includes(search.toLowerCase()))
+        .filter(p => categoryFilter === 'all' || p.category_number === Number(categoryFilter))
+        .sort((a, b) => a.product_name.localeCompare(b.product_name, 'uk'));
 
     const columns = [
         { key: 'id_product', label: 'ID' },
@@ -99,7 +120,7 @@ export default function ProductsInfo() {
             <div className="flex items-center justify-between mb-6 print:hidden">
                 <h1 className="text-2xl font-bold text-gray-900">Довідник товарів</h1>
                 <div className="flex gap-3">
-                    <button onClick={() => window.print()}
+                    <button onClick={() => setPrintOpen(true)}
                             className="px-4 py-2 text-sm font-bold border border-gray-300 rounded-md hover:bg-gray-50 transition-colors">
                         🖨 Друк
                     </button>
@@ -140,13 +161,14 @@ export default function ProductsInfo() {
             <div className="hidden print:block mb-6 text-center border-b pb-4">
                 <h1 className="text-2xl font-bold">Міні-супермаркет ZLAGODA</h1>
                 <h2 className="text-lg">Звіт: Товари довідника</h2>
-                <p className="text-sm text-gray-500">{new Date().toLocaleDateString('uk-UA')}</p>
+                <p className="text-sm text-gray-500">Дата формування: {new Date().toLocaleDateString('uk-UA', { day: '2-digit', month: '2-digit', year: 'numeric', hour: '2-digit', minute: '2-digit' })}</p>
             </div>
 
             <DataTable columns={columns} data={filtered} loading={loading} onEdit={openEdit} onDelete={handleDelete} />
 
-            <div className="hidden print:block mt-6 border-t pt-4 text-sm text-gray-500 text-center">
-                Всього товарів у списку: {filtered.length}
+            <div className="hidden print:flex justify-between mt-6 border-t pt-4 text-sm text-gray-500">
+                <span>Міні-супермаркет «ZLAGODA» — Конфіденційний документ</span>
+                <span className="font-bold">Всього товарів у списку: {filtered.length}</span>
             </div>
 
             <Modal isOpen={modal.open} onClose={() => setModal({ ...modal, open: false })}
@@ -217,6 +239,90 @@ export default function ProductsInfo() {
                     </div>
                 </div>
             </Modal>
+
+            <div className="mt-8 print:hidden border border-gray-200 rounded-lg bg-white p-6 shadow-sm">
+                <h2 className="text-base font-bold text-gray-800 mb-1">
+                    📊 Статистика продажів товару
+                </h2>
+                <p className="text-xs text-gray-400 mb-4">Оберіть товар зі списку</p>
+                <div className="flex gap-3 mb-4">
+                    <select
+                        value={analyticsProductId}
+                        onChange={(e) => { setAnalyticsProductId(e.target.value); setProductStats(prev => ({...prev, loaded: false, error: ''})); }}
+                        className="flex-1 max-w-xs px-4 py-2 border border-gray-300 rounded-md text-sm focus:outline-none focus:ring-1 focus:ring-green-600"
+                    >
+                        <option value="" disabled>Оберіть товар...</option>
+                        {data.map(p => (
+                            <option key={p.id_product} value={p.id_product}>
+                                {p.product_name} (ID: {p.id_product})
+                            </option>
+                        ))}
+                    </select>
+                    <button
+                        onClick={handleLoadProductStats}
+                        disabled={productStats.loading}
+                        className="px-4 py-2 text-sm font-bold text-white bg-green-600 rounded-md hover:bg-green-700 transition-colors disabled:bg-gray-400"
+                    >
+                        {productStats.loading ? "Завантаження..." : "Показати"}
+                    </button>
+                </div>
+
+                {productStats.error && (
+                    <div className="mb-3 p-3 bg-red-50 border-l-4 border-red-600 text-red-700 text-sm">
+                        {productStats.error}
+                    </div>
+                )}
+
+                {!productStats.loading && productStats.loaded && productStats.data.length > 0 && (
+                    <table className="w-full text-sm text-left border border-gray-200 rounded mt-2">
+                        <thead className="bg-gray-50 text-xs uppercase font-bold text-gray-600">
+                        <tr>
+                            <th className="p-3">Штрих-код (UPC)</th>
+                            <th className="p-3 text-center">Акційний</th>
+                            <th className="p-3 text-center">К-сть чеків</th>
+                            <th className="p-3 text-center">Продано од.</th>
+                            <th className="p-3 text-right">Виторг</th>
+                        </tr>
+                        </thead>
+                        <tbody>
+                        {productStats.data.map(r => (
+                            <tr key={r.upc} className="border-b border-gray-100 hover:bg-gray-50">
+                                <td className="p-3 font-mono text-xs text-gray-600">{r.upc}</td>
+                                <td className="p-3 text-center">
+                                    {r.promotional_product ? (
+                                        <span className="px-2 py-1 bg-green-100 text-green-800 rounded font-bold text-xs">Так</span>
+                                    ) : (
+                                        <span className="px-2 py-1 bg-gray-100 text-gray-600 rounded font-bold text-xs">Ні</span>
+                                    )}
+                                </td>
+                                <td className="p-3 text-center font-medium">{r.receipt_count}</td>
+                                <td className="p-3 text-center font-medium">{r.items_sold} шт</td>
+                                <td className="p-3 text-right font-bold text-green-700">{Number(r.total_revenue).toFixed(2)} грн</td>
+                            </tr>
+                        ))}
+                        </tbody>
+                    </table>
+                )}
+
+                {!productStats.loading && productStats.loaded && productStats.data.length === 0 && (
+                    <p className="text-sm text-gray-500 mt-2">Цей товар ще жодного разу не продавався.</p>
+                )}
+            </div>
+
+            <PrintPreviewModal
+                isOpen={printOpen}
+                onClose={() => setPrintOpen(false)}
+                title="Довідник товарів"
+                subtitle={categoryFilter !== 'all' ? `Фільтр: ${categories.find(c => c.category_number === Number(categoryFilter))?.category_name || ''}` : undefined}
+                columns={columns}
+                data={filtered}
+                renderCell={(col, row) => {
+                    if (col.key === 'category_number') {
+                        return categories.find(c => c.category_number === row[col.key])?.category_name || row[col.key];
+                    }
+                    return row[col.key];
+                }}
+            />
         </div>
     );
 }

@@ -16,7 +16,6 @@ import ProductsStoreMgr from "./pages/manager/ProductsStore.jsx";
 import CustomersMgr from "./pages/manager/Customers.jsx";
 import ReceiptsMgr from "./pages/manager/Receipts.jsx";
 import Reports from "./pages/manager/Reports.jsx";
-import IndividualReports from "./pages/manager/IndividualReports.jsx";
 
 // Cashier
 import NewReceipt from "./pages/cashier/NewReceipt.jsx";
@@ -74,7 +73,6 @@ function App() {
                         <Route path="customers" element={<CustomersMgr />} />
                         <Route path="receipts" element={<ReceiptsMgr />} />
                         <Route path="reports" element={<Reports />} />
-                        <Route path="individual-reports" element={<IndividualReports />} />
                     </Route>
 
                     <Route
