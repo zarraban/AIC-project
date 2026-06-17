@@ -156,7 +156,7 @@ function Employees() {
         { key: 'empl_surname', label: 'Прізвище' },
         { key: 'empl_name', label: 'Ім\'я' },
         { key: 'empl_patronymic', label: 'По батькові' },
-        { key: 'empl_role', label: 'Посада', render: (v) => v === 'manager' ? 'Менеджер' : 'Касир' },
+        { key: 'empl_role', label: 'Посада', render: (v) => v === 'Manager' ? 'Менеджер' : 'Касир' },
         { key: 'salary', label: 'Зарплата', render: (v) => `${Number(v).toFixed(2)} грн` },
         { key: 'phone_number', label: 'Телефон' },
     ];
